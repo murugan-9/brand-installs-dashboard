@@ -1,0 +1,73 @@
+{
+  "source": "P11 - 17th July.xlsx",
+  "contentHash": "6fb1bcecdb7c84e5",
+  "sheets": [
+    {
+      "name": "SNs Config &  SVL",
+      "file": "SNs_Config____SVL.json",
+      "rowCount": 269653,
+      "headers": [
+        "PRDTYP",
+        "MDL",
+        "SERIAL",
+        "SERIAL5",
+        "STATUS",
+        "IBMCTY",
+        "CNAME",
+        "ZIP",
+        "CITY",
+        "STATE",
+        "ADDR",
+        "ISO",
+        "FC",
+        "FCQ",
+        "SVCT",
+        "SVCLVC",
+        "SVCLVD",
+        "SVCSTA",
+        "SVCEND",
+        "CONTRNO",
+        "SWKSRT"
+      ]
+    },
+    {
+      "name": "ESS Installs",
+      "file": "ESS_Installs.json",
+      "rowCount": 4730,
+      "headers": [
+        "ILPRID",
+        "PRDTYP",
+        "MDL",
+        "SERIAL",
+        "SERIAL5",
+        "STATUS",
+        "IBMCTY",
+        "CMR",
+        "CCMR",
+        "INSTD",
+        "IASSET",
+        "SHIPD",
+        "WED",
+        "CNAME",
+        "ZIP",
+        "KUNNR",
+        "CITY",
+        "STATE",
+        "ADDR",
+        "RGN",
+        "ISO",
+        "INSTT",
+        "SRCUPD",
+        "AUDD",
+        "ILPRID1",
+        "SERIALO",
+        "CPRDTYP",
+        "BGID",
+        "BGNAM",
+        "GBGID",
+        "GBGNAM",
+        "TOM"
+      ]
+    }
+  ]
+}
