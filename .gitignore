@@ -1,0 +1,17 @@
+﻿# Bob internal dump files — too large for GitHub
+.bob/
+
+# Dashboard backup files
+dashboard-final.bak*.html
+
+# Dev/build scripts not needed on GitHub
+build-10min.ps1
+build-pptx.ps1
+build-pptx-v2.ps1
+entitlement-lookup-fs7600.ps1
+fix-ibm-rule.ps1
+fix-issues.ps1
+inject-brands-filter.ps1
+move-brand-to-header.ps1
+DASHBOARD_REFRESH_GUIDE.txt
+manifest.json
