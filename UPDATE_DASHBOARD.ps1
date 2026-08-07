@@ -24,6 +24,18 @@ Write-Host "   BRAND INSTALLS DASHBOARD REFRESH    " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
+# ── Step 0: Backup current dashboard-final.html ───────────────────────────
+$backupFile = "$dashDir\dashboard-final.bak_$(Get-Date -Format 'yyyyMMdd_HHmmss').html"
+if (Test-Path $dashFile) {
+    Copy-Item $dashFile $backupFile -Force
+    Write-Host "Backup created: $(Split-Path $backupFile -Leaf)" -ForegroundColor DarkGray
+    # Keep only the 2 most recent backups — delete older ones
+    $oldBaks = Get-ChildItem "$dashDir\dashboard-final.bak_*.html" |
+               Sort-Object LastWriteTime -Descending | Select-Object -Skip 2
+    foreach ($b in $oldBaks) { Remove-Item $b.FullName -Force; Write-Host "  Removed old backup: $($b.Name)" -ForegroundColor DarkGray }
+}
+Write-Host ""
+
 # ── Step 1: Find latest JSON dump folders ─────────────────────────────────
 Write-Host "Step 1/5  Finding latest JSON dump folders..." -ForegroundColor White
 
