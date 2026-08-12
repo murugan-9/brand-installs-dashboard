@@ -96,12 +96,13 @@ function svclvdPriority($v) {
     if ($v -match '^8H COMMITTED FIX')        { return 3 }
     if ($v -match '^12H COMMITTED FIX')       { return 4 }
     if ($v -match '^24H COMMITTED FIX')       { return 5 }
-    if ($v -match '^72H COMMITTED FIX')       { return 6 }
-    if ($v -match '^SD SAME DAY')             { return 7 }
-    if ($v -match '^ON-SITE REPAIR.*ORT=SD')  { return 8 }
-    if ($v -match '^NBD NEXT BUSINESS DAY')   { return 9 }
-    if ($v -match '^ON-SITE REPAIR.*ORT=NBD') { return 10 }
-    if ($v -eq ',')                           { return 11 }
+    if ($v -match '^48H COMMITTED FIX')       { return 6 }
+    if ($v -match '^72H COMMITTED FIX')       { return 7 }
+    if ($v -match '^SD SAME DAY')             { return 8 }
+    if ($v -match '^ON-SITE REPAIR.*ORT=SD')  { return 9 }
+    if ($v -match '^NBD NEXT BUSINESS DAY')   { return 10 }
+    if ($v -match '^ON-SITE REPAIR.*ORT=NBD') { return 11 }
+    if ($v -eq ',')                           { return 12 }
     return 99
 }
 function deriveComment($vals) {
