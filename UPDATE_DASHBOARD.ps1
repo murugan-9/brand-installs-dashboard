@@ -1,9 +1,9 @@
 # =============================================================================
 #  UPDATE_DASHBOARD.ps1  —  ONE-CLICK WEEKLY REFRESH  (fast JSON-dump method)
-#  Drop new P11 and FLASHSYSTEM xlsx files into the playground folder,
-#  then run this script. It does everything automatically:
-#    1. Finds the pre-built JSON dumps for the latest P11 and FLASHSYSTEM files
-#    2. Builds ALL_ROWS, V1/V2/V3 data for both brands (PowerShell, no Excel COM)
+#  Drop new P11, FLASHSYSTEM, z Mid Range and P11 Balcones xlsx files into the
+#  playground folder, then run this script. It does everything automatically:
+#    1. Finds the pre-built JSON dumps for the latest brand xlsx files
+#    2. Builds ALL_ROWS, V1/V2/V3 data for all brands (PowerShell, no Excel COM)
 #    3. Injects the new data directly into dashboard-final.html
 #    4. Copies dashboard-final.html to index.html
 #    5. Commits and pushes to GitHub Pages
@@ -39,16 +39,30 @@ Write-Host ""
 # ── Step 1: Find latest JSON dump folders ─────────────────────────────────
 Write-Host "Step 1/5  Finding latest JSON dump folders..." -ForegroundColor White
 
-$p11Dump = Get-ChildItem "$dumpBase\P11*" -Directory -ErrorAction SilentlyContinue |
-           Sort-Object LastWriteTime -Descending | Select-Object -First 1
-$fsDump  = Get-ChildItem "$dumpBase\FLASHSYSTEM*" -Directory -ErrorAction SilentlyContinue |
-           Sort-Object LastWriteTime -Descending | Select-Object -First 1
+# NOTE: P11 Balcones dumps start with "P11 Balcones" so we exclude them from the plain P11 match
+$p11Dump      = Get-ChildItem "$dumpBase\P11 -*" -Directory -ErrorAction SilentlyContinue |
+                Sort-Object LastWriteTime -Descending | Select-Object -First 1
+if (-not $p11Dump) {
+    $p11Dump  = Get-ChildItem "$dumpBase\P11*" -Directory -ErrorAction SilentlyContinue |
+                Where-Object { $_.Name -notmatch '^P11 Balcones' } |
+                Sort-Object LastWriteTime -Descending | Select-Object -First 1
+}
+$fsDump       = Get-ChildItem "$dumpBase\FLASHSYSTEM*" -Directory -ErrorAction SilentlyContinue |
+                Sort-Object LastWriteTime -Descending | Select-Object -First 1
+$zmidDump     = Get-ChildItem "$dumpBase\z Mid Range*" -Directory -ErrorAction SilentlyContinue |
+                Sort-Object LastWriteTime -Descending | Select-Object -First 1
+$balconesDump = Get-ChildItem "$dumpBase\P11 Balcones*" -Directory -ErrorAction SilentlyContinue |
+                Sort-Object LastWriteTime -Descending | Select-Object -First 1
 
-if (-not $p11Dump) { Write-Host "ERROR: No P11 dump found in $dumpBase" -ForegroundColor Red; Write-Host "Please ask Bob to dump the new P11 xlsx first." -ForegroundColor Yellow; pause; exit 1 }
-if (-not $fsDump)  { Write-Host "ERROR: No FLASHSYSTEM dump found in $dumpBase" -ForegroundColor Red; Write-Host "Please ask Bob to dump the new FLASHSYSTEM xlsx first." -ForegroundColor Yellow; pause; exit 1 }
+if (-not $p11Dump)      { Write-Host "ERROR: No P11 dump found in $dumpBase" -ForegroundColor Red; Write-Host "Please ask Bob to dump the new P11 xlsx first." -ForegroundColor Yellow; pause; exit 1 }
+if (-not $fsDump)       { Write-Host "ERROR: No FLASHSYSTEM dump found in $dumpBase" -ForegroundColor Red; Write-Host "Please ask Bob to dump the new FLASHSYSTEM xlsx first." -ForegroundColor Yellow; pause; exit 1 }
+if (-not $zmidDump)     { Write-Host "WARNING: No z Mid Range dump found — ZMID data will be empty" -ForegroundColor Yellow }
+if (-not $balconesDump) { Write-Host "WARNING: No P11 Balcones dump found — BALCONES data will be empty" -ForegroundColor Yellow }
 
-Write-Host "  P11      : $($p11Dump.Name)" -ForegroundColor Green
-Write-Host "  FS7600   : $($fsDump.Name)"  -ForegroundColor Green
+Write-Host "  P11           : $($p11Dump.Name)"          -ForegroundColor Green
+Write-Host "  FS7600        : $($fsDump.Name)"           -ForegroundColor Green
+Write-Host "  z Mid Range   : $(if($zmidDump){$zmidDump.Name}else{'(not found)'})"     -ForegroundColor $(if($zmidDump){'Green'}else{'Yellow'})
+Write-Host "  P11 Balcones  : $(if($balconesDump){$balconesDump.Name}else{'(not found)'})" -ForegroundColor $(if($balconesDump){'Green'}else{'Yellow'})
 Write-Host ""
 
 # ── Step 2: Load JSON sheets ───────────────────────────────────────────────
@@ -65,8 +79,28 @@ $p11Svl = Load-Sheet $p11Dump.FullName "SNs_Config____SVL.json"
 $fsEss  = Load-Sheet $fsDump.FullName  "ESS_Installs.json"
 $fsSvl  = Load-Sheet $fsDump.FullName  "SNs_Config____SVL.json"
 
-Write-Host "  P11   ESS=$($p11Ess.rows.Count)  SVL=$($p11Svl.rows.Count)" -ForegroundColor Green
-Write-Host "  FS7600 ESS=$($fsEss.rows.Count)  SVL=$($fsSvl.rows.Count)"  -ForegroundColor Green
+# z Mid Range — graceful empty fallback if dump not found
+if ($zmidDump) {
+    $zmidEss = Load-Sheet $zmidDump.FullName "ESS_Installs.json"
+    $zmidSvl = Load-Sheet $zmidDump.FullName "SNs_Config____SVL.json"
+} else {
+    $zmidEss = [PSCustomObject]@{ headers=@(); rows=@() }
+    $zmidSvl = [PSCustomObject]@{ headers=@(); rows=@() }
+}
+
+# P11 Balcones — graceful empty fallback if dump not found
+if ($balconesDump) {
+    $balconesEss = Load-Sheet $balconesDump.FullName "ESS_Installs.json"
+    $balconesSvl = Load-Sheet $balconesDump.FullName "SNs_Config____SVL.json"
+} else {
+    $balconesEss = [PSCustomObject]@{ headers=@(); rows=@() }
+    $balconesSvl = [PSCustomObject]@{ headers=@(); rows=@() }
+}
+
+Write-Host "  P11          ESS=$($p11Ess.rows.Count)  SVL=$($p11Svl.rows.Count)"          -ForegroundColor Green
+Write-Host "  FS7600       ESS=$($fsEss.rows.Count)  SVL=$($fsSvl.rows.Count)"           -ForegroundColor Green
+Write-Host "  z Mid Range  ESS=$($zmidEss.rows.Count)  SVL=$($zmidSvl.rows.Count)"       -ForegroundColor $(if($zmidDump){'Green'}else{'Yellow'})
+Write-Host "  P11 Balcones ESS=$($balconesEss.rows.Count)  SVL=$($balconesSvl.rows.Count)" -ForegroundColor $(if($balconesDump){'Green'}else{'Yellow'})
 Write-Host ""
 
 # ── Step 3: Build dashboard data ──────────────────────────────────────────
@@ -201,8 +235,10 @@ function Build-DashData($ess, $svl, $label) {
     return @{ V1='['+($v1 -join ',')+']'; V2='['+($v2 -join ',')+']'; V3='['+($v3 -join ',')+']'; ROWS='['+($compact -join ',')+']' }
 }
 
-$p11Data = Build-DashData $p11Ess $p11Svl "P11"
-$fsData  = Build-DashData $fsEss  $fsSvl  "FS7600"
+$p11Data      = Build-DashData $p11Ess      $p11Svl      "P11"
+$fsData       = Build-DashData $fsEss       $fsSvl       "FS7600"
+$zmidData     = Build-DashData $zmidEss     $zmidSvl     "ZMID"
+$balconesData = Build-DashData $balconesEss $balconesSvl "BALCONES"
 Write-Host ""
 
 # ── Step 4: Inject into dashboard-final.html ──────────────────────────────
@@ -216,14 +252,22 @@ function Replace-InlineVar($html, $varName, $newValue) {
     return $result
 }
 
-$html = Replace-InlineVar $html "ALL_ROWS"        $p11Data.ROWS
-$html = Replace-InlineVar $html "V1"              $p11Data.V1
-$html = Replace-InlineVar $html "V2"              $p11Data.V2
-$html = Replace-InlineVar $html "V3"              $p11Data.V3
-$html = Replace-InlineVar $html "ALL_ROWS_FS7600" $fsData.ROWS
-$html = Replace-InlineVar $html "V1_FS7600"       $fsData.V1
-$html = Replace-InlineVar $html "V2_FS7600"       $fsData.V2
-$html = Replace-InlineVar $html "V3_FS7600"       $fsData.V3
+$html = Replace-InlineVar $html "ALL_ROWS"           $p11Data.ROWS
+$html = Replace-InlineVar $html "V1"                 $p11Data.V1
+$html = Replace-InlineVar $html "V2"                 $p11Data.V2
+$html = Replace-InlineVar $html "V3"                 $p11Data.V3
+$html = Replace-InlineVar $html "ALL_ROWS_FS7600"    $fsData.ROWS
+$html = Replace-InlineVar $html "V1_FS7600"          $fsData.V1
+$html = Replace-InlineVar $html "V2_FS7600"          $fsData.V2
+$html = Replace-InlineVar $html "V3_FS7600"          $fsData.V3
+$html = Replace-InlineVar $html "ALL_ROWS_ZMID"      $zmidData.ROWS
+$html = Replace-InlineVar $html "V1_ZMID"            $zmidData.V1
+$html = Replace-InlineVar $html "V2_ZMID"            $zmidData.V2
+$html = Replace-InlineVar $html "V3_ZMID"            $zmidData.V3
+$html = Replace-InlineVar $html "ALL_ROWS_BALCONES"  $balconesData.ROWS
+$html = Replace-InlineVar $html "V1_BALCONES"        $balconesData.V1
+$html = Replace-InlineVar $html "V2_BALCONES"        $balconesData.V2
+$html = Replace-InlineVar $html "V3_BALCONES"        $balconesData.V3
 
 [System.IO.File]::WriteAllText($dashFile, $html, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "  dashboard-final.html updated" -ForegroundColor Green
