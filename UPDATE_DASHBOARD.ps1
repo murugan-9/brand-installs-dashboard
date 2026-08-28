@@ -244,32 +244,39 @@ Write-Host ""
 # ── Step 4: Inject into dashboard-final.html ──────────────────────────────
 Write-Host "Step 4/5  Injecting data into dashboard-final.html..." -ForegroundColor White
 
-$html = Get-Content $dashFile -Raw -Encoding UTF8
-
-function Replace-InlineVar($html, $varName, $newValue) {
-    $result = [regex]::Replace($html, "(?s)(var $varName=)\[.*?\];", "`${1}$newValue;")
-    if ($result -eq $html) { Write-Host "  WARNING: var $varName not found in HTML" -ForegroundColor Yellow }
-    return $result
+# Line-based replacement handles JSON arrays with nested brackets reliably
+$varMap = @{
+    "ALL_ROWS"          = ("var ALL_ROWS="          + $p11Data.ROWS      + ";")
+    "V1"                = ("var V1="                + $p11Data.V1        + ";")
+    "V2"                = ("var V2="                + $p11Data.V2        + ";")
+    "V3"                = ("var V3="                + $p11Data.V3        + ";")
+    "ALL_ROWS_FS7600"   = ("var ALL_ROWS_FS7600="   + $fsData.ROWS       + ";")
+    "V1_FS7600"         = ("var V1_FS7600="         + $fsData.V1         + ";")
+    "V2_FS7600"         = ("var V2_FS7600="         + $fsData.V2         + ";")
+    "V3_FS7600"         = ("var V3_FS7600="         + $fsData.V3         + ";")
+    "ALL_ROWS_ZMID"     = ("var ALL_ROWS_ZMID="     + $zmidData.ROWS     + ";")
+    "V1_ZMID"           = ("var V1_ZMID="           + $zmidData.V1       + ";")
+    "V2_ZMID"           = ("var V2_ZMID="           + $zmidData.V2       + ";")
+    "V3_ZMID"           = ("var V3_ZMID="           + $zmidData.V3       + ";")
+    "ALL_ROWS_BALCONES" = ("var ALL_ROWS_BALCONES=" + $balconesData.ROWS + ";")
+    "V1_BALCONES"       = ("var V1_BALCONES="       + $balconesData.V1   + ";")
+    "V2_BALCONES"       = ("var V2_BALCONES="       + $balconesData.V2   + ";")
+    "V3_BALCONES"       = ("var V3_BALCONES="       + $balconesData.V3   + ";")
 }
-
-$html = Replace-InlineVar $html "ALL_ROWS"           $p11Data.ROWS
-$html = Replace-InlineVar $html "V1"                 $p11Data.V1
-$html = Replace-InlineVar $html "V2"                 $p11Data.V2
-$html = Replace-InlineVar $html "V3"                 $p11Data.V3
-$html = Replace-InlineVar $html "ALL_ROWS_FS7600"    $fsData.ROWS
-$html = Replace-InlineVar $html "V1_FS7600"          $fsData.V1
-$html = Replace-InlineVar $html "V2_FS7600"          $fsData.V2
-$html = Replace-InlineVar $html "V3_FS7600"          $fsData.V3
-$html = Replace-InlineVar $html "ALL_ROWS_ZMID"      $zmidData.ROWS
-$html = Replace-InlineVar $html "V1_ZMID"            $zmidData.V1
-$html = Replace-InlineVar $html "V2_ZMID"            $zmidData.V2
-$html = Replace-InlineVar $html "V3_ZMID"            $zmidData.V3
-$html = Replace-InlineVar $html "ALL_ROWS_BALCONES"  $balconesData.ROWS
-$html = Replace-InlineVar $html "V1_BALCONES"        $balconesData.V1
-$html = Replace-InlineVar $html "V2_BALCONES"        $balconesData.V2
-$html = Replace-InlineVar $html "V3_BALCONES"        $balconesData.V3
-
-[System.IO.File]::WriteAllText($dashFile, $html, (New-Object System.Text.UTF8Encoding($false)))
+$lines = [System.IO.File]::ReadAllLines($dashFile, [System.Text.Encoding]::UTF8)
+$replaced = @{}
+for ($i = 0; $i -lt $lines.Length; $i++) {
+    foreach ($key in $varMap.Keys) {
+        if ($lines[$i] -match ("^var " + $key + "=")) {
+            $lines[$i] = $varMap[$key]
+            $replaced[$key] = $true
+        }
+    }
+}
+foreach ($key in $varMap.Keys) {
+    if (-not $replaced.ContainsKey($key)) { Write-Host ("  WARNING: var " + $key + " not found in HTML") -ForegroundColor Yellow }
+}
+[System.IO.File]::WriteAllLines($dashFile, $lines, (New-Object System.Text.UTF8Encoding($false)))
 Write-Host "  dashboard-final.html updated" -ForegroundColor Green
 Copy-Item $dashFile $indexFile -Force
 Write-Host "  index.html updated" -ForegroundColor Green
