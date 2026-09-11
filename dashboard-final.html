@@ -145,7 +145,7 @@ footer{text-align:center;padding:16px;border-top:1px solid #0d1117;color:#1f2937
       <div class="hdr-brand-drop" id="hdrBrandDrop">
         <div class="cmt-drop-hdr">Filter by Brand <span id="hdrBclr" style="cursor:pointer;color:#6366f1;font-size:11px;font-weight:600">Select all</span></div>
         <div class="cmt-opt"><input type="radio" name="brand" id="br0" class="brk" value="ALL" checked><label for="br0">&#127775; All Brands</label></div>
-        <div class="cmt-opt"><input type="radio" name="brand" id="br1" class="brk" value="P11"><label for="br1">P11</label></div>
+        <div class="cmt-opt"><input type="radio" name="brand" id="br1" class="brk" value="P11"><label for="br1">P11 (2025)</label></div>
         <div class="cmt-opt"><input type="radio" name="brand" id="br2" class="brk" value="FS7600"><label for="br2">FlashSystem</label></div>
         <div class="cmt-opt"><input type="radio" name="brand" id="br3" class="brk" value="ZMID"><label for="br3">z Mid Range (2026)</label></div>
         <div class="cmt-opt"><input type="radio" name="brand" id="br4" class="brk" value="BALCONES"><label for="br4">P11 Balcones (2026)</label></div>
@@ -737,7 +737,7 @@ function openModal(cty,mt,st,cu,sv,geo,cname){
   _modalRows=rows;
   var lab=st==='IN'?'Installed':st==='SH'?'Shipped':'All';
   var _ab=getActiveBrand();
-  _modalTitle=(_ab==='FS7600'?'FS7600':_ab==='ZMID'?'ZMID':_ab==='BALCONES'?'BALCONES':'P11')+'_'+lab+'_Records';
+  _modalTitle=(_ab==='FS7600'?'FS7600':_ab==='ZMID'?'ZMID':_ab==='BALCONES'?'BALCONES':'P11_2025')+'_'+lab+'_Records';
   document.getElementById('mTitle').textContent=lab+' Record Details';
   var ctx=ctyN?'Country '+cty:(geo?'GEO: '+geo:(cname?'Country: '+cname:'All Countries'));
   if(mtN) ctx+=' \u2014 MT '+mt;
@@ -1001,7 +1001,7 @@ function renderV3(){
       var bpill=document.getElementById('hdrBrandBadge');
       if(bpill){
         var bv=v?v.value:'ALL';
-          if(bv==='P11')           {bpill.textContent='P11';               bpill.className='brand-pill bp-p11';}
+          if(bv==='P11')           {bpill.textContent='P11 (2025)';        bpill.className='brand-pill bp-p11';}
           else if(bv==='FS7600')   {bpill.textContent='FlashSystem';       bpill.className='brand-pill bp-fs';}
           else if(bv==='ZMID')     {bpill.textContent='z Mid Range (2026)';bpill.className='brand-pill bp-zmid';}
           else if(bv==='BALCONES') {bpill.textContent='P11 Balcones (2026)';bpill.className='brand-pill bp-balcones';}
