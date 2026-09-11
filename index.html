@@ -869,15 +869,41 @@ function renderPivots(fr){
 }
 
 // ── Row match ─────────────────────────────────────────────────────────────
-function mRow1(r,tks){var cm=getCtyMeta(r[3],String(r[9]||'').trim());return tks.every(function(q){return String(r[3]).includes(q)||cm.country.toLowerCase().includes(q);});}
-function mRow2(r,tks){return tks.every(function(q){return String(r[3]).includes(q)||String(r[8]||'').includes(q);});}
+// Helper: resolve country name for a compact row (uses ISO first, then IBMCTY fallback)
+function _rowCountry(r){var cm=getCtyMeta(r[3],String(r[9]||'').trim());return(r[4]||cm.country||'').toLowerCase();}
+// Helper: SVCLVD match — query must match at a word boundary start so "8h" won't match "48h"
+// Splits SVCLVD on spaces/commas and checks if any token starts with the query
+function _svMatch(sv,q){
+  if(!sv) return false;
+  var svl=sv.toLowerCase();
+  // Direct start-of-string match (e.g. "8h committed..." starts with "8h")
+  if(svl.indexOf(q)===0) return true;
+  // Token-start match: each space/comma-separated word
+  var tokens=svl.split(/[\s,]+/);
+  for(var i=0;i<tokens.length;i++){if(tokens[i].indexOf(q)===0) return true;}
+  return false;
+}
+function mRow1(r,tks){
+  var cty=_rowCountry(r);
+  return tks.every(function(q){
+    return String(r[3]).includes(q)||cty.includes(q);
+  });
+}
+function mRow2(r,tks){
+  var cty=_rowCountry(r);
+  return tks.every(function(q){
+    return String(r[3]).includes(q)||String(r[8]||'').includes(q)||cty.includes(q);
+  });
+}
 function mRow3(r,tks){
-  var sv=(r[19]||'').toLowerCase();
+  var cty=_rowCountry(r);
+  var sv=(r[19]||'');
   return tks.every(function(q){
     if(String(r[3]).includes(q)) return true;
     if(String(r[8]||'').includes(q)) return true;
     if((r[10]||'').toLowerCase().includes(q)) return true;
-    return sv.indexOf(q)>=0;
+    if(cty.includes(q)) return true;
+    return _svMatch(sv,q);
   });
 }
 
