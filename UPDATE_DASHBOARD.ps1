@@ -1,5 +1,5 @@
 # =============================================================================
-#  UPDATE_DASHBOARD.ps1  —  ONE-CLICK WEEKLY REFRESH  (fast JSON-dump method)
+#  UPDATE_DASHBOARD.ps1  â€”  ONE-CLICK WEEKLY REFRESH  (fast JSON-dump method)
 #  Drop new P11, FLASHSYSTEM, z Mid Range and P11 Balcones xlsx files into the
 #  playground folder, then run this script. It does everything automatically:
 #    1. Finds the pre-built JSON dumps for the latest brand xlsx files
@@ -8,7 +8,7 @@
 #    4. Copies dashboard-final.html to index.html
 #    5. Commits and pushes to GitHub Pages
 #
-#  FAST because it reads JSON (already dumped by Bob) — NOT Excel COM.
+#  FAST because it reads JSON (already dumped by Bob) â€” NOT Excel COM.
 #  Run time: ~30-60 seconds instead of 10+ minutes.
 # =============================================================================
 
@@ -24,24 +24,28 @@ Write-Host "   BRAND INSTALLS DASHBOARD REFRESH    " -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
 
-# ── Step 0: Backup current dashboard-final.html ───────────────────────────
+# â”€â”€ Step 0: Backup current dashboard-final.html â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 $backupFile = "$dashDir\dashboard-final.bak_$(Get-Date -Format 'yyyyMMdd_HHmmss').html"
 if (Test-Path $dashFile) {
     Copy-Item $dashFile $backupFile -Force
     Write-Host "Backup created: $(Split-Path $backupFile -Leaf)" -ForegroundColor DarkGray
-    # Keep only the 2 most recent backups — delete older ones
+    # Keep only the 2 most recent backups â€” delete older ones
     $oldBaks = Get-ChildItem "$dashDir\dashboard-final.bak_*.html" |
                Sort-Object LastWriteTime -Descending | Select-Object -Skip 2
     foreach ($b in $oldBaks) { Remove-Item $b.FullName -Force; Write-Host "  Removed old backup: $($b.Name)" -ForegroundColor DarkGray }
 }
 Write-Host ""
 
-# ── Step 1: Find latest JSON dump folders ─────────────────────────────────
+# â”€â”€ Step 1: Find latest JSON dump folders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host "Step 1/5  Finding latest JSON dump folders..." -ForegroundColor White
 
-# NOTE: P11 Balcones dumps start with "P11 Balcones" so we exclude them from the plain P11 match
-$p11Dump      = Get-ChildItem "$dumpBase\P11 -*" -Directory -ErrorAction SilentlyContinue |
+# P11 (2025) dumps — try new naming first, then fall back to old "P11 -" pattern
+$p11Dump      = Get-ChildItem "$dumpBase\P11 (2025)*" -Directory -ErrorAction SilentlyContinue |
                 Sort-Object LastWriteTime -Descending | Select-Object -First 1
+if (-not $p11Dump) {
+    $p11Dump  = Get-ChildItem "$dumpBase\P11 -*" -Directory -ErrorAction SilentlyContinue |
+                Sort-Object LastWriteTime -Descending | Select-Object -First 1
+}
 if (-not $p11Dump) {
     $p11Dump  = Get-ChildItem "$dumpBase\P11*" -Directory -ErrorAction SilentlyContinue |
                 Where-Object { $_.Name -notmatch '^P11 Balcones' } |
@@ -56,8 +60,8 @@ $balconesDump = Get-ChildItem "$dumpBase\P11 Balcones*" -Directory -ErrorAction 
 
 if (-not $p11Dump)      { Write-Host "ERROR: No P11 dump found in $dumpBase" -ForegroundColor Red; Write-Host "Please ask Bob to dump the new P11 xlsx first." -ForegroundColor Yellow; pause; exit 1 }
 if (-not $fsDump)       { Write-Host "ERROR: No FLASHSYSTEM dump found in $dumpBase" -ForegroundColor Red; Write-Host "Please ask Bob to dump the new FLASHSYSTEM xlsx first." -ForegroundColor Yellow; pause; exit 1 }
-if (-not $zmidDump)     { Write-Host "WARNING: No z Mid Range dump found — ZMID data will be empty" -ForegroundColor Yellow }
-if (-not $balconesDump) { Write-Host "WARNING: No P11 Balcones dump found — BALCONES data will be empty" -ForegroundColor Yellow }
+if (-not $zmidDump)     { Write-Host "WARNING: No z Mid Range dump found â€” ZMID data will be empty" -ForegroundColor Yellow }
+if (-not $balconesDump) { Write-Host "WARNING: No P11 Balcones dump found â€” BALCONES data will be empty" -ForegroundColor Yellow }
 
 Write-Host "  P11           : $($p11Dump.Name)"          -ForegroundColor Green
 Write-Host "  FS7600        : $($fsDump.Name)"           -ForegroundColor Green
@@ -65,7 +69,7 @@ Write-Host "  z Mid Range   : $(if($zmidDump){$zmidDump.Name}else{'(not found)'}
 Write-Host "  P11 Balcones  : $(if($balconesDump){$balconesDump.Name}else{'(not found)'})" -ForegroundColor $(if($balconesDump){'Green'}else{'Yellow'})
 Write-Host ""
 
-# ── Step 2: Load JSON sheets ───────────────────────────────────────────────
+# â”€â”€ Step 2: Load JSON sheets â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host "Step 2/5  Loading JSON data..." -ForegroundColor White
 
 function Load-Sheet($dumpDir, $filename) {
@@ -79,7 +83,7 @@ $p11Svl = Load-Sheet $p11Dump.FullName "SNs_Config____SVL.json"
 $fsEss  = Load-Sheet $fsDump.FullName  "ESS_Installs.json"
 $fsSvl  = Load-Sheet $fsDump.FullName  "SNs_Config____SVL.json"
 
-# z Mid Range — graceful empty fallback if dump not found
+# z Mid Range â€” graceful empty fallback if dump not found
 if ($zmidDump) {
     $zmidEss = Load-Sheet $zmidDump.FullName "ESS_Installs.json"
     $zmidSvl = Load-Sheet $zmidDump.FullName "SNs_Config____SVL.json"
@@ -88,7 +92,7 @@ if ($zmidDump) {
     $zmidSvl = [PSCustomObject]@{ headers=@(); rows=@() }
 }
 
-# P11 Balcones — graceful empty fallback if dump not found
+# P11 Balcones â€” graceful empty fallback if dump not found
 if ($balconesDump) {
     $balconesEss = Load-Sheet $balconesDump.FullName "ESS_Installs.json"
     $balconesSvl = Load-Sheet $balconesDump.FullName "SNs_Config____SVL.json"
@@ -103,7 +107,7 @@ Write-Host "  z Mid Range  ESS=$($zmidEss.rows.Count)  SVL=$($zmidSvl.rows.Count
 Write-Host "  P11 Balcones ESS=$($balconesEss.rows.Count)  SVL=$($balconesSvl.rows.Count)" -ForegroundColor $(if($balconesDump){'Green'}else{'Yellow'})
 Write-Host ""
 
-# ── Step 3: Build dashboard data ──────────────────────────────────────────
+# â”€â”€ Step 3: Build dashboard data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host "Step 3/5  Building dashboard data..." -ForegroundColor White
 
 function esc($v) {
@@ -241,7 +245,7 @@ $zmidData     = Build-DashData $zmidEss     $zmidSvl     "ZMID"
 $balconesData = Build-DashData $balconesEss $balconesSvl "BALCONES"
 Write-Host ""
 
-# ── Step 4: Inject into dashboard-final.html ──────────────────────────────
+# â”€â”€ Step 4: Inject into dashboard-final.html â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host "Step 4/5  Injecting data into dashboard-final.html..." -ForegroundColor White
 
 # Line-based replacement handles JSON arrays with nested brackets reliably
@@ -282,7 +286,7 @@ Copy-Item $dashFile $indexFile -Force
 Write-Host "  index.html updated" -ForegroundColor Green
 Write-Host ""
 
-# ── Step 5: Commit and push ────────────────────────────────────────────────
+# â”€â”€ Step 5: Commit and push â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Write-Host "Step 5/5  Publishing to GitHub Pages..." -ForegroundColor White
 Set-Location $dashDir
 $today = Get-Date -Format "yyyy-MM-dd HH:mm"
