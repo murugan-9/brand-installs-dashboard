@@ -77,25 +77,30 @@ function Load-Sheet($dumpDir, $filename) {
     if (-not (Test-Path $path)) { throw "Sheet file not found: $path" }
     return Get-Content $path -Raw | ConvertFrom-Json
 }
+function Load-Svl($dumpDir) {
+    # Handle both naming conventions: old (____) and new (_)
+    if (Test-Path "$dumpDir\SNs_Config____SVL.json") { return Load-Sheet $dumpDir "SNs_Config____SVL.json" }
+    return Load-Sheet $dumpDir "SNs_Config_SVL.json"
+}
 
 $p11Ess = Load-Sheet $p11Dump.FullName "ESS_Installs.json"
-$p11Svl = Load-Sheet $p11Dump.FullName "SNs_Config____SVL.json"
+$p11Svl = Load-Svl   $p11Dump.FullName
 $fsEss  = Load-Sheet $fsDump.FullName  "ESS_Installs.json"
-$fsSvl  = Load-Sheet $fsDump.FullName  "SNs_Config____SVL.json"
+$fsSvl  = Load-Svl   $fsDump.FullName
 
-# z Mid Range â€” graceful empty fallback if dump not found
+# z Mid Range — graceful empty fallback if dump not found
 if ($zmidDump) {
     $zmidEss = Load-Sheet $zmidDump.FullName "ESS_Installs.json"
-    $zmidSvl = Load-Sheet $zmidDump.FullName "SNs_Config____SVL.json"
+    $zmidSvl = Load-Svl   $zmidDump.FullName
 } else {
     $zmidEss = [PSCustomObject]@{ headers=@(); rows=@() }
     $zmidSvl = [PSCustomObject]@{ headers=@(); rows=@() }
 }
 
-# P11 Balcones â€” graceful empty fallback if dump not found
+# P11 Balcones — graceful empty fallback if dump not found
 if ($balconesDump) {
     $balconesEss = Load-Sheet $balconesDump.FullName "ESS_Installs.json"
-    $balconesSvl = Load-Sheet $balconesDump.FullName "SNs_Config____SVL.json"
+    $balconesSvl = Load-Svl   $balconesDump.FullName
 } else {
     $balconesEss = [PSCustomObject]@{ headers=@(); rows=@() }
     $balconesSvl = [PSCustomObject]@{ headers=@(); rows=@() }
@@ -154,12 +159,18 @@ function deriveComment($vals) {
         $svcend = parseDate $vals["SVCEND"]
         if ($null -ne $svcend -and $svcend -lt (Get-Date)) { return "Contract Expired" }
     }
-    $shipd = parseDate $vals["SHIPD"]; $instd = parseDate $vals["INSTD"]
-    $oldDate = ($null -ne $shipd -and $shipd.Year -lt 2025) -or ($null -ne $instd -and $instd.Year -lt 2025)
-    if ($oldDate -and (-not $hasEnt)) { return "Invalid" }
-    if ($hasEnt)                       { return "Complete" }
-    if ($status -eq "IN")              { return "No Entitlement" }
-    if ($status -eq "SH")              { return "Not Installed" }
+    if ($hasEnt) { return "Complete" }
+    # No entitlement — check for Invalid based on status-specific date rules
+    if ($status -eq "SH") {
+        $shipd = parseDate $vals["SHIPD"]
+        if ($null -ne $shipd -and $shipd.Year -lt 2025) { return "Invalid" }
+        return "Not Installed"
+    }
+    if ($status -eq "IN") {
+        $instd = parseDate $vals["INSTD"]
+        if ($null -ne $instd -and $instd.Year -lt 2025) { return "Invalid" }
+        return "No Entitlement"
+    }
     return ""
 }
 
