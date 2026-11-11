@@ -118,14 +118,36 @@ Write-Host "Step 3/5  Building dashboard data..." -ForegroundColor White
 function esc($v) {
     return ([string]$v).Trim() -replace '\\','\\' -replace '"','\"' -replace "`r`n",' ' -replace "`n",' '
 }
+# PERMANENT FIX: date values arrive in three shapes depending on the source workbook:
+#   1) Excel serial number          e.g. 46148            (P11 raw xlsx dump)
+#   2) ISO text                     e.g. 2026-05-06 or 2026-05-06T00:00:00.000Z
+#   3) Day-first text               e.g. 21-08-2026       (FlashSystem / z Mid Range / Balcones)
+# All three must resolve to the same real date. Day-first is parsed with EXPLICIT formats - never
+# a culture-dependent Parse - so 03-10-2026 is always 3 Oct and never silently read as 10 Mar.
+$script:dateFormats = [string[]]@(
+    'yyyy-MM-dd', 'yyyy-MM-ddTHH:mm:ss', 'yyyy-MM-ddTHH:mm:ss.fff', "yyyy-MM-ddTHH:mm:ss.fffZ", "yyyy-MM-ddTHH:mm:ssZ",
+    'yyyy-MM-dd HH:mm:ss', 'dd-MM-yyyy', 'dd/MM/yyyy', 'dd-MM-yyyy HH:mm:ss', 'dd/MM/yyyy HH:mm:ss'
+)
+function toDate($v) {
+    if ($null -eq $v) { return $null }
+    $s = ([string]$v).Trim()
+    if ($s -eq "" -or $s -eq "0001-01-01") { return $null }
+    $inv = [System.Globalization.CultureInfo]::InvariantCulture
+    if ($s -match '^\d{5,7}(\.\d+)?$') {
+        try { return [datetime]::FromOADate([double]::Parse($s, $inv)) } catch { return $null }
+    }
+    $styles = [System.Globalization.DateTimeStyles]::AdjustToUniversal -bor [System.Globalization.DateTimeStyles]::AssumeUniversal
+    $out = [datetime]::MinValue
+    if ([datetime]::TryParseExact($s, $script:dateFormats, $inv, $styles, [ref]$out)) { return $out }
+    return $null
+}
 function fmtDate($v) {
-    if ($null -eq $v -or [string]$v -eq "" -or [string]$v -eq "0001-01-01") { return "" }
-    try { return ([datetime]::Parse([string]$v)).ToString("yyyy-MM-dd") } catch { return [string]$v }
+    $d = toDate $v
+    if ($null -ne $d) { return $d.ToString("yyyy-MM-dd") }
+    if ($null -eq $v -or ([string]$v).Trim() -eq "0001-01-01") { return "" }
+    return ([string]$v).Trim()
 }
-function parseDate($v) {
-    if ($null -eq $v -or [string]$v -eq "" -or [string]$v -eq "0001-01-01") { return $null }
-    try { return [datetime]::Parse([string]$v) } catch { return $null }
-}
+function parseDate($v) { return toDate $v }
 function deriveIbmClient($cname) {
     $cu = ([string]$cname).Trim().ToUpper()
     if ($cu -match '\bIBM\b' -or $cu -match 'INTERNATIONAL BUSINESS MACHINE') { return "IBM" }
