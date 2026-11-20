@@ -1,0 +1,218 @@
+﻿[
+    {
+        "program":  "P11 (2025)",
+        "key":  "P11",
+        "essRows":  5922,
+        "svlRows":  365241,
+        "outRows":  5922,
+        "comments":  {
+                         "No Entitlement":  44,
+                         "IBM":  341,
+                         "Contract Expired":  1,
+                         "Not Installed":  277,
+                         "Complete":  5259
+                     }
+    },
+    {
+        "program":  "Broadcom B50 (GEN8)",
+        "key":  "EBROADCOMB50GEN8",
+        "essRows":  112,
+        "svlRows":  1294,
+        "outRows":  112,
+        "comments":  {
+                         "Complete":  85,
+                         "IBM":  2,
+                         "Not Installed":  25
+                     }
+    },
+    {
+        "program":  "CEPH Ready Node",
+        "key":  "ECEPHREADYNODE",
+        "essRows":  12,
+        "svlRows":  0,
+        "outRows":  12,
+        "comments":  {
+                         "Not Installed":  12
+                     }
+    },
+    {
+        "program":  "DataPower \u0026 QR",
+        "key":  "EDATAPOWERQR",
+        "essRows":  10,
+        "svlRows":  0,
+        "outRows":  10,
+        "comments":  {
+                         "Not Installed":  10
+                     }
+    },
+    {
+        "program":  "DS8K",
+        "key":  "EDS8K",
+        "essRows":  131,
+        "svlRows":  11630,
+        "outRows":  131,
+        "comments":  {
+                         "Complete":  118,
+                         "Not Installed":  5,
+                         "No Entitlement":  3,
+                         "IBM":  5
+                     }
+    },
+    {
+        "program":  "Enterprise Tape",
+        "key":  "EENTERPRISETAPE",
+        "essRows":  22,
+        "svlRows":  394,
+        "outRows":  22,
+        "comments":  {
+                         "Complete":  18,
+                         "IBM":  4
+                     }
+    },
+    {
+        "program":  "FlashSystem",
+        "key":  "FS7600",
+        "essRows":  3228,
+        "svlRows":  48594,
+        "outRows":  3228,
+        "comments":  {
+                         "Complete":  2589,
+                         "Not Installed":  580,
+                         "No Entitlement":  15,
+                         "IBM":  44
+                     }
+    },
+    {
+        "program":  "FlashSystem C200",
+        "key":  "EFLASHSYSTEMC200",
+        "essRows":  8,
+        "svlRows":  72,
+        "outRows":  8,
+        "comments":  {
+                         "Complete":  4,
+                         "Not Installed":  4
+                     }
+    },
+    {
+        "program":  "Fusion",
+        "key":  "EFUSION",
+        "essRows":  498,
+        "svlRows":  15347,
+        "outRows":  498,
+        "comments":  {
+                         "Complete":  453,
+                         "Not Installed":  7,
+                         "No Entitlement":  8,
+                         "IBM":  30
+                     }
+    },
+    {
+        "program":  "Fusion HCI + watsonx",
+        "key":  "EFUSIONHCIWATSONX",
+        "essRows":  0,
+        "svlRows":  0,
+        "outRows":  0,
+        "comments":  {
+
+                     }
+    },
+    {
+        "program":  "Hydra TS7785",
+        "key":  "EHYDRATS7785",
+        "essRows":  33,
+        "svlRows":  198,
+        "outRows":  33,
+        "comments":  {
+                         "Complete":  13,
+                         "Not Installed":  20
+                     }
+    },
+    {
+        "program":  "Networking SAN56B-8",
+        "key":  "ENETWORKINGSAN56B8",
+        "essRows":  212,
+        "svlRows":  1910,
+        "outRows":  212,
+        "comments":  {
+                         "Complete":  177,
+                         "Not Installed":  34,
+                         "IBM":  1
+                     }
+    },
+    {
+        "program":  "P11 Balcones (2026)",
+        "key":  "BALCONES",
+        "essRows":  200,
+        "svlRows":  10294,
+        "outRows":  200,
+        "comments":  {
+                         "Complete":  158,
+                         "Not Installed":  39,
+                         "No Entitlement":  1,
+                         "IBM":  2
+                     }
+    },
+    {
+        "program":  "Spectrum Fusion",
+        "key":  "ESPECTRUMFUSION",
+        "essRows":  63,
+        "svlRows":  1596,
+        "outRows":  63,
+        "comments":  {
+                         "Complete":  48,
+                         "Not Installed":  5,
+                         "No Entitlement":  2,
+                         "IBM":  8
+                     }
+    },
+    {
+        "program":  "Switches NVIDIA",
+        "key":  "ESWITCHESNVIDIA",
+        "essRows":  30,
+        "svlRows":  70,
+        "outRows":  30,
+        "comments":  {
+                         "Complete":  3,
+                         "Not Installed":  20,
+                         "IBM":  7
+                     }
+    },
+    {
+        "program":  "TS4300 Tape Library",
+        "key":  "ETS4300TAPELIBRARY",
+        "essRows":  1534,
+        "svlRows":  16019,
+        "outRows":  1534,
+        "comments":  {
+                         "Complete":  767,
+                         "No Entitlement":  594,
+                         "Not Installed":  173
+                     }
+    },
+    {
+        "program":  "z Mid Range (2026)",
+        "key":  "ZMID",
+        "essRows":  95,
+        "svlRows":  2870,
+        "outRows":  95,
+        "comments":  {
+                         "Complete":  60,
+                         "IBM":  7,
+                         "Not Installed":  28
+                     }
+    },
+    {
+        "program":  "z17 - 9175",
+        "key":  "EZ179175",
+        "essRows":  1067,
+        "svlRows":  61998,
+        "outRows":  1067,
+        "comments":  {
+                         "No Entitlement":  53,
+                         "IBM":  114,
+                         "Not Installed":  31,
+                         "Invalid":  22,
+                         "Complete":  847
+                     }
+    }
+]
