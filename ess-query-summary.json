@@ -1,0 +1,155 @@
+﻿[
+    {
+        "program":  "Enterprise Tape",
+        "status":  "OK",
+        "main":  394,
+        "db2Main":  394,
+        "bottom":  22,
+        "db2Bottom":  22,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "Spectrum Fusion",
+        "status":  "OK",
+        "main":  1596,
+        "db2Main":  1596,
+        "bottom":  63,
+        "db2Bottom":  63,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "z17 - 9175",
+        "status":  "OK",
+        "main":  61998,
+        "db2Main":  61998,
+        "bottom":  1067,
+        "db2Bottom":  1067,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "TS4300 Tape Library",
+        "status":  "OK",
+        "main":  16019,
+        "db2Main":  16019,
+        "bottom":  1534,
+        "db2Bottom":  1534,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "FlashSystem",
+        "status":  "OK",
+        "main":  48594,
+        "db2Main":  48594,
+        "bottom":  3228,
+        "db2Bottom":  3228,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "Switches NVIDIA",
+        "status":  "OK",
+        "main":  70,
+        "db2Main":  70,
+        "bottom":  30,
+        "db2Bottom":  30,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "Hydra TS7785",
+        "status":  "OK",
+        "main":  198,
+        "db2Main":  198,
+        "bottom":  33,
+        "db2Bottom":  33,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "P11 Balcones (2026)",
+        "status":  "OK",
+        "main":  10294,
+        "db2Main":  10294,
+        "bottom":  200,
+        "db2Bottom":  200,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "Fusion HCI + watsonx",
+        "status":  "OK",
+        "main":  0,
+        "db2Main":  0,
+        "bottom":  0,
+        "db2Bottom":  0,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "Networking SAN56B-8",
+        "status":  "OK",
+        "main":  1910,
+        "db2Main":  1910,
+        "bottom":  212,
+        "db2Bottom":  212,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "Fusion",
+        "status":  "OK",
+        "main":  15347,
+        "db2Main":  15347,
+        "bottom":  498,
+        "db2Bottom":  498,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "FlashSystem C200",
+        "status":  "OK",
+        "main":  72,
+        "db2Main":  72,
+        "bottom":  8,
+        "db2Bottom":  8,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "Broadcom B50 (GEN8)",
+        "status":  "OK",
+        "main":  1294,
+        "db2Main":  1294,
+        "bottom":  112,
+        "db2Bottom":  112,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "DataPower \u0026 QR",
+        "status":  "OK",
+        "main":  0,
+        "db2Main":  0,
+        "bottom":  10,
+        "db2Bottom":  10,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "CEPH Ready Node",
+        "status":  "OK",
+        "main":  0,
+        "db2Main":  0,
+        "bottom":  12,
+        "db2Bottom":  12,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "DS8K",
+        "status":  "OK",
+        "main":  11630,
+        "db2Main":  11630,
+        "bottom":  131,
+        "db2Bottom":  131,
+        "at":  "2026-11-20 20:25:09"
+    },
+    {
+        "program":  "z Mid Range (2026)",
+        "status":  "OK",
+        "main":  2870,
+        "db2Main":  2870,
+        "bottom":  95,
+        "db2Bottom":  95,
+        "at":  "2026-11-20 20:25:09"
+    }
+]

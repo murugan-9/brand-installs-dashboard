@@ -24,29 +24,37 @@ Write-Host "1. Row counts: dashboard vs ESS sheet" -ForegroundColor White
 $bad1 = @($sum | Where-Object { $_.outRows -ne $_.essRows })
 if ($bad1.Count) { $bad1 | ForEach-Object { Bad "$($_.program): dashboard $($_.outRows) vs ESS $($_.essRows)" } } else { Good "all $($sum.Count) programs match" }
 
-# 2. Cross-check the xlsx contents against the DB2 counts that Run_All_17 logged
-Write-Host "2. ESS files vs DB2 counts in Run_All_17.log" -ForegroundColor White
-$lines = @(Get-Content $essLog)
-if (-not ($lines -match '=== SUMMARY ===')) { Bad "no SUMMARY block in Run_All_17.log" }
-else {
-    # The log is cumulative (every run appends). Take the LATEST complete summary row per program, so a
-    # program retried after a dropped DB2 connection is judged on its retry, not on the failed attempt.
-    $rx = '^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d (.+?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(OK|FAIL.*)$'
-    $latest = [ordered]@{}
-    foreach ($l in $lines) {
-        $m = [regex]::Match($l, $rx); if (-not $m.Success) { continue }
-        $latest[$m.Groups[1].Value.Trim()] = $m
+# 2. Cross-check the xlsx contents against the DB2 counts recorded when the files were generated.
+#    Preferred source: ess-query-summary.json (written by REFRESH_ESS.ps1 from each worker's own output - safe
+#    with parallel workers). Fallback: the cumulative Run_All_17.log (latest summary row per program).
+$qsFile = "$dir\ess-query-summary.json"
+$latest = [ordered]@{}   # name -> @{ status; main; db2Main; bottom; db2Bottom }
+if (Test-Path $qsFile) {
+    Write-Host "2. ESS files vs DB2 counts (ess-query-summary.json)" -ForegroundColor White
+    foreach ($e in @(Get-Content $qsFile -Raw | ConvertFrom-Json | ForEach-Object { $_ })) {
+        $latest[$e.program] = @{ status = $e.status; main = $e.main; db2Main = $e.db2Main; bottom = $e.bottom; db2Bottom = $e.db2Bottom }
     }
+} else {
+    Write-Host "2. ESS files vs DB2 counts in Run_All_17.log" -ForegroundColor White
+    $rx = '^\d{4}-\d\d-\d\d \d\d:\d\d:\d\d (.+?)\s+(\d+)\s+(\d+)\s+(\d+)\s+(\d+)\s+(OK|FAIL.*)$'
+    foreach ($l in @(Get-Content $essLog)) {
+        $m = [regex]::Match($l, $rx); if (-not $m.Success) { continue }
+        $latest[$m.Groups[1].Value.Trim()] = @{ status = $(if ($m.Groups[6].Value -eq 'OK') { 'OK' } else { 'FAIL' }); main = [int]$m.Groups[2].Value; db2Main = [int]$m.Groups[3].Value; bottom = [int]$m.Groups[4].Value; db2Bottom = [int]$m.Groups[5].Value }
+    }
+}
+if ($latest.Count -eq 0) { Bad "no DB2 count records found" }
+else {
     $n = 0
     foreach ($name in $latest.Keys) {
-        $m = $latest[$name]; $n++
+        $q = $latest[$name]; $n++
         $p = $sum | Where-Object { $_.program -eq $name } | Select-Object -First 1
-        if (-not $p) { Bad "log lists '$name' but no dump exists"; continue }
-        if ($m.Groups[6].Value -ne 'OK')                  { Bad "$name : log status $($m.Groups[6].Value)" }
-        elseif ([int]$m.Groups[4].Value -ne $p.essRows)   { Bad "$name : DB2 bottom $($m.Groups[4].Value) vs file $($p.essRows)" }
-        elseif ([int]$m.Groups[2].Value -ne $p.svlRows)   { Bad "$name : DB2 main $($m.Groups[2].Value) vs file $($p.svlRows)" }
+        if (-not $p) { Bad "'$name' was queried but no dump exists"; continue }
+        if ($q.status -ne 'OK')                       { Bad "$name : query status $($q.status)" }
+        elseif ([int]$q.db2Bottom -ne $p.essRows)     { Bad "$name : DB2 bottom $($q.db2Bottom) vs file $($p.essRows)" }
+        elseif ([int]$q.db2Main -ne $p.svlRows)       { Bad "$name : DB2 main $($q.db2Main) vs file $($p.svlRows)" }
+        elseif ([int]$q.main -ne [int]$q.db2Main -or [int]$q.bottom -ne [int]$q.db2Bottom) { Bad "$name : fetched rows differ from DB2 COUNT(*)" }
     }
-    if ($n -ne 17) { Bad "log summary has $n programs, expected 17" } else { Good "17 programs match DB2 counts (P11 2025 is uploaded manually, not in log)" }
+    if ($n -ne 17) { Bad "records for $n programs, expected 17" } else { Good "17 programs match DB2 counts (P11 2025 is uploaded manually)" }
 }
 
 # 3. Parse dashboard data
