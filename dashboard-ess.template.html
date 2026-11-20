@@ -1,0 +1,1041 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Serial Status Dashboard &#x2013; {{TITLE_SUFFIX}}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:#080c16;color:#e2e8f0;min-height:100vh}
+::-webkit-scrollbar{width:6px;height:6px}::-webkit-scrollbar-track{background:#0d1117}::-webkit-scrollbar-thumb{background:#2d3748;border-radius:3px}
+.hdr{background:linear-gradient(135deg,#0f172a 0%,#1a1040 100%);border-bottom:1px solid #1e2a42;padding:15px 24px;display:flex;align-items:center;gap:14px}
+.hdr-logo{width:40px;height:40px;background:linear-gradient(135deg,#6366f1,#8b5cf6,#ec4899);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:17px;font-weight:900;color:#fff;flex-shrink:0}
+.hdr-text{flex:1}
+.hdr h1{font-size:18px;font-weight:800;color:#f1f5f9}
+.hdr p{font-size:11px;color:#4b5563;margin-top:2px}
+.tabs{display:flex;gap:0;padding:0 24px;border-bottom:1px solid #1a2234;background:#0c1020}
+.tab{padding:12px 20px;font-size:12px;font-weight:700;color:#4b5563;border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;user-select:none;text-transform:uppercase;letter-spacing:.5px}
+.tab:hover{color:#a5b4fc;background:rgba(99,102,241,.05)}
+.tab.active{color:#818cf8;border-bottom-color:#6366f1;background:rgba(99,102,241,.08)}
+.main{padding:18px 24px}
+.kpi-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-bottom:20px}
+.kpi{background:#111827;border:1px solid #1f2937;border-radius:12px;padding:15px 18px;position:relative;overflow:hidden}
+.kpi::after{content:'';position:absolute;top:0;left:0;right:0;height:3px;border-radius:12px 12px 0 0}
+.kpi.k1::after{background:linear-gradient(90deg,#6366f1,#a5b4fc)}
+.kpi.k2::after{background:linear-gradient(90deg,#10b981,#6ee7b7)}
+.kpi.k3::after{background:linear-gradient(90deg,#f59e0b,#fcd34d)}
+.kpi.k4::after{background:linear-gradient(90deg,#ec4899,#f9a8d4)}
+.kpi-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#4b5563;margin-bottom:5px}
+.kpi-val{font-size:28px;font-weight:900;letter-spacing:-1px}
+.kpi.k1 .kpi-val{color:#a5b4fc}.kpi.k2 .kpi-val{color:#6ee7b7}.kpi.k3 .kpi-val{color:#fcd34d}.kpi.k4 .kpi-val{color:#f9a8d4}
+.kpi-sub{font-size:10px;color:#2d3748;margin-top:3px}
+.view{display:none}.view.active{display:block}
+.toolbar{display:flex;align-items:center;gap:10px;margin-bottom:12px;flex-wrap:wrap}
+.toolbar input{flex:1;min-width:200px;background:#111827;border:1px solid #1f2937;border-radius:8px;padding:8px 14px;color:#e2e8f0;font-size:13px;outline:none}
+.toolbar input:focus{border-color:#6366f1}
+.toolbar input::placeholder{color:#2d3748}
+.rec-count{font-size:11px;color:#374151;white-space:nowrap}
+.cmt-wrap{position:relative;display:inline-flex;align-self:center}
+.cmt-btn{background:#111827;border:1px solid #1f2937;border-radius:8px;padding:0 12px;height:36px;color:#e2e8f0;font-size:12px;font-weight:600;cursor:pointer;display:inline-flex;align-items:center;gap:7px;white-space:nowrap;user-select:none}
+.cmt-btn:hover{border-color:#6366f1}
+.cmt-arrow{font-size:9px;color:#4b5563;transition:transform .2s}
+.cmt-wrap.open .cmt-arrow{transform:rotate(180deg)}
+.cmt-drop{display:none;position:absolute;top:calc(100% + 5px);left:0;z-index:200;background:#0f172a;border:1px solid #312e81;border-radius:10px;padding:6px 0 10px;box-shadow:0 10px 36px rgba(0,0,0,.65)}
+.cmt-wrap.open .cmt-drop{display:block}
+.cmt-drop-hdr{padding:7px 16px 6px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:#4b5563;border-bottom:1px solid #1e293b;margin-bottom:2px;display:flex;justify-content:space-between;align-items:center;white-space:nowrap}
+.cmt-drop-hdr span{color:#6366f1;font-size:11px;cursor:pointer;font-weight:600;text-transform:none;letter-spacing:0}
+.cmt-opt{display:flex;flex-direction:row;align-items:center;padding:7px 16px;gap:10px;cursor:pointer;white-space:nowrap}
+.cmt-opt:hover{background:rgba(99,102,241,.09)}
+.cmt-opt input[type=checkbox]{width:14px;height:14px;accent-color:#6366f1;cursor:pointer;flex:0 0 14px;margin:0}
+.cmt-opt label{font-size:13px;color:#94a3b8;cursor:pointer;user-select:none;margin:0}
+.cmt-opt:hover label{color:#e2e8f0}
+.cmt-badge{display:inline-flex;align-items:center;justify-content:center;background:#312e81;color:#a5b4fc;font-size:10px;font-weight:700;padding:0 6px;border-radius:20px;height:16px;min-width:18px}
+.piv-section{margin-bottom:16px}
+.piv-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.7px;color:#4b5563;margin-bottom:8px;padding-left:2px}
+.piv-strip{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:4px}
+.piv-card{background:#111827;border:1px solid #1f2937;border-radius:8px;padding:9px 14px;min-width:100px;cursor:pointer;transition:border-color .15s}
+.piv-card:hover{border-color:#6366f1}
+.piv-card .pc-key{font-size:11px;font-weight:700;color:#818cf8;margin-bottom:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
+.piv-card .pc-row{display:flex;gap:10px;align-items:baseline}
+.piv-card .pc-in{font-size:15px;font-weight:800;color:#34d399;cursor:pointer}
+.piv-card .pc-in:hover{color:#6ee7b7}
+.piv-card .pc-sh{font-size:15px;font-weight:800;color:#fbbf24;margin-left:6px;cursor:pointer}
+.piv-card .pc-sh:hover{color:#fcd34d}
+.piv-card .pc-tot{font-size:11px;font-weight:600;color:#94a3b8;margin-left:6px;cursor:pointer;text-decoration:underline dotted;text-underline-offset:2px}
+.piv-card .pc-tot:hover{color:#e2e8f0}
+.piv-card .pc-lbl{font-size:9px;color:#374151;margin-top:2px}
+.piv-svlv .pc-key{color:#a78bfa;font-size:10px;max-width:200px;white-space:normal;line-height:1.3}
+.tbl-wrap{border-radius:10px;border:1px solid #1a2234;overflow:auto;max-height:500px}
+table{width:100%;border-collapse:collapse;font-size:13px}
+thead th{position:sticky;top:0;z-index:2;background:#0b0f1e;color:#4b5563;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;padding:10px 14px;text-align:left;border-bottom:1px solid #1a2234;white-space:nowrap;cursor:pointer;user-select:none}
+thead th:hover{color:#818cf8}
+tbody tr:hover{background:#0e1525}
+tbody td{padding:9px 14px;border-bottom:1px solid #0d1422;color:#94a3b8;vertical-align:middle}
+tbody tr:last-child td{border-bottom:none}
+tbody tr.summary-row td{background:#0d1630;border-top:1px solid #1e3a5f;border-bottom:1px solid #1e3a5f}
+tbody tr.summary-row td:first-child{border-left:3px solid #6366f1}
+.clk{font-weight:800;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px;transition:color .15s}
+.clk-in{color:#34d399}.clk-in:hover{color:#6ee7b7}
+.clk-sh{color:#fbbf24}.clk-sh:hover{color:#fcd34d}
+.clk-tot{color:#a5b4fc;font-weight:800;cursor:pointer;text-decoration:underline dotted;text-underline-offset:3px}.clk-tot:hover{color:#c4b5fd}
+.zero{color:#1f2937}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:10px;font-weight:700}
+.b-in{background:#064e3b;color:#34d399}.b-sh{background:#451a03;color:#fbbf24}.b-eq{background:#1e1b4b;color:#a5b4fc}
+.bar-col{min-width:100px}
+.bar-row{display:flex;align-items:center;gap:5px;margin:1px 0}
+.bar-bg{flex:1;height:4px;background:#1f2937;border-radius:2px}
+.bar-fill{height:100%;border-radius:2px}
+.bi{background:linear-gradient(90deg,#059669,#34d399)}.bs{background:linear-gradient(90deg,#d97706,#fbbf24)}
+.bar-lbl{font-size:10px;min-width:20px;text-align:right}
+.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:500;align-items:flex-start;justify-content:center;padding:30px 16px}
+.overlay.open{display:flex}
+.modal{background:#0f172a;border:1px solid #312e81;border-radius:14px;width:100%;max-width:1200px;max-height:85vh;display:flex;flex-direction:column;box-shadow:0 25px 80px rgba(0,0,0,.7)}
+.modal-hdr{display:flex;justify-content:space-between;align-items:flex-start;padding:16px 20px;border-bottom:1px solid #1e293b;flex-shrink:0}
+.modal-hdr h2{font-size:15px;font-weight:700;color:#f1f5f9}
+.modal-ctx{font-size:11px;color:#6366f1;margin-top:3px}
+.modal-close{background:none;border:1px solid #374151;color:#9ca3af;width:28px;height:28px;border-radius:6px;cursor:pointer;font-size:14px;flex-shrink:0;margin-left:12px;line-height:1}
+.modal-close:hover{background:#374151;color:#f1f5f9}
+.modal-body{overflow:auto;flex:1}
+.dtbl{width:100%;border-collapse:collapse;font-size:11.5px}
+.dtbl thead th{position:sticky;top:0;background:#080c16;color:#374151;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:8px 10px;text-align:left;border-bottom:1px solid #0f172a;white-space:nowrap}
+.dtbl tbody tr:hover{background:#0a0f1e}
+.dtbl tbody td{padding:7px 10px;border-bottom:1px solid #0a0f1e;color:#94a3b8;white-space:nowrap}
+.dtbl tbody td:nth-child(2){color:#818cf8;font-weight:600}
+.st-in{background:#064e3b;color:#34d399;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700}
+.st-sh{background:#451a03;color:#fbbf24;padding:1px 6px;border-radius:10px;font-size:9px;font-weight:700}
+.modal-ftr{padding:10px 20px;border-top:1px solid #1e293b;display:flex;justify-content:space-between;align-items:center;font-size:11px;color:#374151;flex-shrink:0}
+.dl-btn{display:inline-flex;align-items:center;gap:5px;padding:5px 12px;border-radius:6px;font-size:11px;font-weight:700;cursor:pointer;border:none;text-decoration:none;line-height:1.4}
+.dl-csv{background:#064e3b;color:#34d399}.dl-csv:hover{background:#065f46}
+.dl-xlsx{background:#1e3a5f;color:#60a5fa}.dl-xlsx:hover{background:#1e40af}
+.dl-group{display:flex;gap:8px;align-items:center}
+footer{text-align:center;padding:16px;border-top:1px solid #0d1117;color:#1f2937;font-size:11px;margin-top:8px}
+.cmt-opt input[type=radio]{width:14px;height:14px;accent-color:#6366f1;cursor:pointer;flex:0 0 14px;margin:0}
+.hdr-brand{margin-left:auto;flex-shrink:0;display:flex;align-items:center}
+.hdr-brand-widget{position:relative;display:inline-flex;align-items:center}
+.hdr-brand-btn{display:inline-flex;align-items:center;gap:10px;background:rgba(255,255,255,.04);border:1px solid #2d3748;border-radius:10px;padding:8px 14px;cursor:pointer;user-select:none;white-space:nowrap;transition:border-color .15s}
+.hdr-brand-btn:hover{border-color:#6366f1;background:rgba(99,102,241,.08)}
+.hdr-brand-lbl{font-size:11px;font-weight:700;color:#64748b;text-transform:uppercase;letter-spacing:.7px}
+.hdr-brand-arrow{font-size:9px;color:#4b5563;transition:transform .2s;margin-left:2px}
+.hdr-brand-widget.open .hdr-brand-arrow{transform:rotate(180deg)}
+.hdr-brand-drop{display:none;position:absolute;top:calc(100% + 8px);right:0;z-index:600;background:#0f172a;border:1px solid #312e81;border-radius:10px;padding:6px 0 10px;box-shadow:0 12px 40px rgba(0,0,0,.7);min-width:200px;max-height:70vh;overflow-y:auto}
+.hdr-brand-widget.open .hdr-brand-drop{display:block}
+.brand-pill{display:inline-flex;align-items:center;padding:4px 12px;border-radius:20px;font-size:12px;font-weight:700;border:1px solid;white-space:nowrap;letter-spacing:.3px}
+.brand-pill.bp-all{background:rgba(99,102,241,.18);border-color:#4338ca;color:#a5b4fc}
+.brand-pill.bp-p11{background:rgba(16,185,129,.15);border-color:#059669;color:#6ee7b7}
+.brand-pill.bp-fs{background:rgba(245,158,11,.15);border-color:#d97706;color:#fcd34d}
+.brand-pill.bp-zmid{background:rgba(139,92,246,.15);border-color:#7c3aed;color:#c4b5fd}
+.brand-pill.bp-balcones{background:rgba(236,72,153,.15);border-color:#be185d;color:#f9a8d4}
+/*{{BRAND_CSS}}*/
+.kpi.clickable{cursor:pointer;transition:border-color .15s,transform .1s}.kpi.clickable:hover{border-color:#6366f1;transform:translateY(-1px)}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="hdr-logo" style="font-size:13px">&#9644;</div>
+  <div class="hdr-text">
+    <h1>Serial Status Dashboard &mdash; {{TITLE_SUFFIX}}</h1>
+    <p><span id="hdrRecs">--</span> &nbsp;&middot;&nbsp; <span style="color:#6ee7b7">Click any number to drill down &nbsp;|&nbsp; Use Brands filter (top-right) to switch brand</span></p>
+  </div>
+  <div class="hdr-brand">
+    <div class="hdr-brand-widget" id="hdrBrandWidget">
+      <div class="hdr-brand-btn" id="hdrBrandBtn">
+        <span class="hdr-brand-lbl">Brands</span>
+        <span class="brand-pill bp-all" id="hdrBrandBadge">All Brands</span>
+        <span class="hdr-brand-arrow">&#9660;</span>
+      </div>
+      <div class="hdr-brand-drop" id="hdrBrandDrop">
+        <div class="cmt-drop-hdr">Filter by Brand <span id="hdrBclr" style="cursor:pointer;color:#6366f1;font-size:11px;font-weight:600">Select all</span></div>
+        <div class="cmt-opt"><input type="radio" name="brand" id="br0" class="brk" value="ALL" checked><label for="br0">&#127775; All Brands</label></div>
+        {{BRAND_OPTIONS}}
+      </div>
+    </div>
+  </div>
+</div>
+<div class="tabs">
+  <div class="tab active" data-tab="v1">&#127757; Country Wise</div>
+  <div class="tab" data-tab="v2">&#128270; Country + Machine Type</div>
+  <div class="tab" data-tab="v3">&#128196; Country + MT + Customer + SVCLVD</div>
+</div>
+<div class="main">
+  <div class="kpi-row">
+    <div class="kpi k1 clickable" id="kpiCard1" title="Click to view all records"><div class="kpi-lbl">Total Serials</div><div class="kpi-val" id="kpiTotal">--</div><div class="kpi-sub" id="kpiTotalSub">All records</div></div>
+    <div class="kpi k2 clickable" id="kpiCard2" title="Click to view Installed records"><div class="kpi-lbl">Installed (IN)</div><div class="kpi-val" id="kpiIn">--</div><div class="kpi-sub" id="kpiInSub">--</div></div>
+    <div class="kpi k3 clickable" id="kpiCard3" title="Click to view Shipped records"><div class="kpi-lbl">Shipped (SH)</div><div class="kpi-val" id="kpiSh">--</div><div class="kpi-sub" id="kpiShSub">--</div></div>
+    <div class="kpi k4 clickable" id="kpiCard4" title="Click to view all countries"><div class="kpi-lbl">Countries</div><div class="kpi-val" id="kpiCty">--</div><div class="kpi-sub">Unique IBMCTY values</div></div>
+  </div>
+  <div class="view active" id="view-v1">
+    <div class="piv-section"><div class="piv-title">GEO Summary</div><div class="piv-strip" id="piv1-geo"></div><div class="piv-title" style="margin-top:10px">Top Countries <span style="font-size:9px;color:#374151;font-weight:400;text-transform:none">(top 15)</span></div><div class="piv-strip" id="piv1-cn"></div></div>
+    <div class="toolbar">
+      <input id="s1" placeholder="Search country... comma-separate e.g. 744,US,706"/>
+      <div class="cmt-wrap" id="cw1"><button class="cmt-btn" id="cb1">&#9776; Comments <span class="cmt-badge" id="cbadge1" style="display:none"></span> <span class="cmt-arrow">&#9660;</span></button><div class="cmt-drop" id="cd1"><div class="cmt-drop-hdr">Filter by Comments <span id="ccl1">Clear all</span></div><div class="cmt-opt"><input type="checkbox" id="c1a" class="cck" value="Complete"><label for="c1a">Complete</label></div><div class="cmt-opt"><input type="checkbox" id="c1b" class="cck" value="Contract Expired"><label for="c1b">Contract Expired</label></div><div class="cmt-opt"><input type="checkbox" id="c1c" class="cck" value="IBM"><label for="c1c">IBM</label></div><div class="cmt-opt"><input type="checkbox" id="c1d" class="cck" value="Invalid"><label for="c1d">Invalid</label></div><div class="cmt-opt"><input type="checkbox" id="c1e" class="cck" value="No Entitlement"><label for="c1e">No Entitlement</label></div><div class="cmt-opt"><input type="checkbox" id="c1f" class="cck" value="Not Installed"><label for="c1f">Not Installed</label></div></div></div>
+      <span class="rec-count" id="rc1"></span>
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th data-col="c">IBMCTY &#8597;</th><th>Country</th><th>Region</th><th>GEO</th><th data-col="i">INSTALLED &#8597;</th><th data-col="s">SHIPPED &#8597;</th><th data-col="t">TOTAL &#8597;</th><th>IN %</th><th class="bar-col">Distribution</th></tr></thead><tbody id="tb1"></tbody></table></div>
+  </div>
+  <div class="view" id="view-v2">
+    <div class="piv-section"><div class="piv-title">Machine Type Summary</div><div class="piv-strip" id="piv2-mt"></div><div class="piv-title" style="margin-top:10px">GEO Summary</div><div class="piv-strip" id="piv2-geo"></div></div>
+    <div class="toolbar">
+      <input id="s2" placeholder="Search country or machine type... e.g. 744,9824"/>
+      <div class="cmt-wrap" id="cw2"><button class="cmt-btn" id="cb2">&#9776; Comments <span class="cmt-badge" id="cbadge2" style="display:none"></span> <span class="cmt-arrow">&#9660;</span></button><div class="cmt-drop" id="cd2"><div class="cmt-drop-hdr">Filter by Comments <span id="ccl2">Clear all</span></div><div class="cmt-opt"><input type="checkbox" id="c2a" class="cck" value="Complete"><label for="c2a">Complete</label></div><div class="cmt-opt"><input type="checkbox" id="c2b" class="cck" value="Contract Expired"><label for="c2b">Contract Expired</label></div><div class="cmt-opt"><input type="checkbox" id="c2c" class="cck" value="IBM"><label for="c2c">IBM</label></div><div class="cmt-opt"><input type="checkbox" id="c2d" class="cck" value="Invalid"><label for="c2d">Invalid</label></div><div class="cmt-opt"><input type="checkbox" id="c2e" class="cck" value="No Entitlement"><label for="c2e">No Entitlement</label></div><div class="cmt-opt"><input type="checkbox" id="c2f" class="cck" value="Not Installed"><label for="c2f">Not Installed</label></div></div></div>
+      <span class="rec-count" id="rc2"></span>
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th data-col="c">IBMCTY &#8597;</th><th>Country</th><th>Region</th><th>GEO</th><th data-col="m">Machine Type &#8597;</th><th data-col="i">INSTALLED &#8597;</th><th data-col="s">SHIPPED &#8597;</th><th data-col="t">TOTAL &#8597;</th><th>IN %</th><th class="bar-col">Distribution</th></tr></thead><tbody id="tb2"></tbody></table></div>
+  </div>
+  <div class="view" id="view-v3">
+    <div class="piv-section"><div class="piv-title">SVCLVD Summary</div><div class="piv-strip" id="piv3-sv"></div><div class="piv-title" style="margin-top:10px">Top Customers <span style="font-size:9px;color:#374151;font-weight:400;text-transform:none">(top 10)</span></div><div class="piv-strip" id="piv3-cu"></div></div>
+    <div class="toolbar">
+      <input id="s3" placeholder="Search customer, country, MT or SVCLVD... e.g. 4h,744,9824"/>
+      <div class="cmt-wrap" id="cw3"><button class="cmt-btn" id="cb3">&#9776; Comments <span class="cmt-badge" id="cbadge3" style="display:none"></span> <span class="cmt-arrow">&#9660;</span></button><div class="cmt-drop" id="cd3"><div class="cmt-drop-hdr">Filter by Comments <span id="ccl3">Clear all</span></div><div class="cmt-opt"><input type="checkbox" id="c3a" class="cck" value="Complete"><label for="c3a">Complete</label></div><div class="cmt-opt"><input type="checkbox" id="c3b" class="cck" value="Contract Expired"><label for="c3b">Contract Expired</label></div><div class="cmt-opt"><input type="checkbox" id="c3c" class="cck" value="IBM"><label for="c3c">IBM</label></div><div class="cmt-opt"><input type="checkbox" id="c3d" class="cck" value="Invalid"><label for="c3d">Invalid</label></div><div class="cmt-opt"><input type="checkbox" id="c3e" class="cck" value="No Entitlement"><label for="c3e">No Entitlement</label></div><div class="cmt-opt"><input type="checkbox" id="c3f" class="cck" value="Not Installed"><label for="c3f">Not Installed</label></div></div></div>
+      <span class="rec-count" id="rc3"></span>
+    </div>
+    <div class="tbl-wrap"><table><thead><tr><th data-col="c">IBMCTY &#8597;</th><th>Country</th><th>Region</th><th>GEO</th><th data-col="m">Machine Type &#8597;</th><th data-col="cu">Customer (CNAME) &#8597;</th><th data-col="sv">SVCLVD &#8597;</th><th data-col="i">INSTALLED &#8597;</th><th data-col="s">SHIPPED &#8597;</th><th data-col="t">TOTAL &#8597;</th><th>IN %</th></tr></thead><tbody id="tb3"></tbody></table></div>
+  </div>
+</div>
+<div class="overlay" id="overlay">
+  <div class="modal">
+    <div class="modal-hdr"><div><h2 id="mTitle">Details</h2><div class="modal-ctx" id="mCtx"></div></div><button class="modal-close" id="mClose">&#x2715;</button></div>
+    <div class="modal-body"><table class="dtbl"><thead><tr id="mHead"></tr></thead><tbody id="mBody"></tbody></table></div>
+    <div class="modal-ftr">
+      <span id="mCount"></span>
+      <span style="color:#374151">All columns from ESS Installs</span>
+      <div class="dl-group">
+        <button class="dl-btn dl-csv" id="dlCsv">&#11123; CSV</button>
+        <button class="dl-btn dl-xlsx" id="dlXlsx">&#11123; Excel</button>
+      </div>
+    </div>
+  </div>
+</div>
+<footer>Made with IBM Bob</footer>
+
+<script>
+
+
+
+//       7=MDL 8=PRDTYP 9=ISO 10=CNAME 11=CITY 12=ZIP 13=ADDR 14=RGN
+//       15=INSTT 16=INSTD 17=SHIPD 18=WED 19=SVCLVD 20=SVCLVC
+//       21=SVCSTA 22=SVCEND 23=CONTRNO 24=BGNAM 25=TOM 26=Comments 27=IBM/CLIENT
+var BRANDS=[];
+var BRAND_ROWS={};
+var COLS=["ILPRID","SERIAL","STATUS","IBMCTY","Country","Region","GEO","MDL","PRDTYP","ISO","CNAME","CITY","ZIP","ADDR","RGN","INSTT","INSTD","SHIPD","WED","BGNAM","TOM","SVCLVD","SVCLVC","SVCSTA","SVCEND","CONTRNO","Comments","IBM/CLIENT"];
+// Display order: raw data indices mapped to the column order above
+// Raw: 0-18 unchanged, then 24=BGNAM,25=TOM,19=SVCLVD,20=SVCLVC,21=SVCSTA,22=SVCEND,23=CONTRNO,26=Comments,27=IBM/CLIENT
+var COL_ORDER=[0,1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16,17,18,24,25,19,20,21,22,23,26,27];
+
+
+// â”€â”€ Brand master dataset â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+// col 28 = Brand tag ("P11" / "FS7600" / "ZMID" / "BALCONES") â€" appended at runtime, not in source
+var MASTER_ROWS = (function(){
+  var m = [];
+  BRANDS.forEach(function(b){ var a=BRAND_ROWS[b.key]||[]; for(var i=0;i<a.length;i++) m.push(a[i].concat([b.key])); });
+  return m;
+}());
+// Country meta (built from row data)
+// Static fallback for IBMCTY codes whose rows have no Country/Region/GEO in the source data
+var CTY_FALLBACK={
+  358:{country:'Azerbaijan',         region:'Russia CIS',           geo:'EM'},
+  373:{country:'Mauritius',          region:'Southern Africa',      geo:'EM'},
+  610:{country:'Angola',             region:'Southern Africa',      geo:'EM'},
+  613:{country:'Argentina',          region:'South America',        geo:'LA'},
+  615:{country:'Bangladesh',         region:'South Asia',           geo:'AP'},
+  616:{country:'Australia',          region:'Australia New Zealand', geo:'AP'},
+  618:{country:'Austria',            region:'Central Europe',       geo:'EM'},
+  619:{country:'Bahamas',            region:'Central America & Caribbean', geo:'LA'},
+  620:{country:'Bahrain',            region:'Gulf States',          geo:'EM'},
+  621:{country:'Barbados',           region:'Central America & Caribbean', geo:'LA'},
+  624:{country:'Belgium',            region:'BeNeLux',              geo:'EM'},
+  629:{country:'Bolivia',            region:'South America',        geo:'LA'},
+  631:{country:'Brazil',             region:'Brazil',               geo:'LA'},
+  635:{country:'Senegal',            region:'West Africa',          geo:'EM'},
+  637:{country:'Cote d\'Ivoire',     region:'West Africa',          geo:'EM'},
+  640:{country:'Guyana',             region:'South America',        geo:'LA'},
+  642:{country:'Morocco',            region:'North West Africa',    geo:'EM'},
+  644:{country:'Bulgaria',           region:'Central Europe',       geo:'EM'},
+  647:{country:'Cayman Islands',     region:'Central America & Caribbean', geo:'LA'},
+  649:{country:'Canada',             region:'Canada',               geo:'AG'},
+  651:{country:'Georgia',            region:'Russia CIS',           geo:'EM'},
+  652:{country:'Sri Lanka',          region:'South Asia',           geo:'AP'},
+  655:{country:'Chile',              region:'South America',        geo:'LA'},
+  661:{country:'Colombia',           region:'South America',        geo:'LA'},
+  662:{country:'DR Congo',           region:'Central Africa',       geo:'EM'},
+  663:{country:'Costa Rica',         region:'Central America & Caribbean', geo:'LA'},
+  666:{country:'Cyprus',             region:'ME PAKISTAN',          geo:'EM'},
+  668:{country:'Czech Republic',     region:'Central Europe',       geo:'EM'},
+  672:{country:'China',              region:'Greater China',        geo:'AP'},
+  677:{country:'UAE',                region:'Gulf States',          geo:'EM'},
+  678:{country:'Denmark',            region:'Nordic',               geo:'EM'},
+  680:{country:'UAE',                region:'Gulf States',          geo:'EM'},
+  681:{country:'Dominican Republic', region:'Central America & Caribbean', geo:'LA'},
+  683:{country:'Ecuador',            region:'South America',        geo:'LA'},
+  692:{country:'Cameroon',           region:'North West Africa',    geo:'EM'},
+  693:{country:'Slovakia',           region:'Central Europe',       geo:'EM'},
+  694:{country:'Kazakhstan',         region:'Russia CIS',           geo:'EM'},
+  695:{country:'Kyrgyzstan',         region:'Russia CIS',           geo:'EM'},
+  698:{country:'Ethiopia',           region:'Central Africa',       geo:'EM'},
+  699:{country:'Bosnia & Herzegovina',region:'Central Europe',      geo:'EM'},
+  702:{country:'Finland',            region:'Nordic',               geo:'EM'},
+  704:{country:'Croatia',            region:'Central Europe',       geo:'EM'},
+  705:{country:'North Macedonia',    region:'Central Europe',       geo:'EM'},
+  706:{country:'France',             region:'France',               geo:'EM'},
+  707:{country:'Serbia',             region:'Central Europe',       geo:'EM'},
+  708:{country:'Slovenia',           region:'Central Europe',       geo:'EM'},
+  717:{country:'Mauritania',         region:'North West Africa',    geo:'EM'},
+  724:{country:'Germany',            region:'Germany',              geo:'EM'},
+  725:{country:'Ghana',              region:'West Africa',          geo:'EM'},
+  726:{country:'Greece',             region:'Greece',               geo:'EM'},
+  729:{country:'Tunisia',            region:'North West Africa',    geo:'EM'},
+  731:{country:'Guatemala',          region:'Central America & Caribbean', geo:'LA'},
+  735:{country:'Honduras',           region:'Central America & Caribbean', geo:'LA'},
+  738:{country:'Hong Kong',          region:'Greater China',        geo:'AP'},
+  740:{country:'Hungary',            region:'Central Europe',       geo:'EM'},
+  741:{country:'Uzbekistan',         region:'Russia CIS',           geo:'EM'},
+  744:{country:'India',              region:'India',                geo:'AP'},
+  749:{country:'Indonesia',          region:'ASEAN',                geo:'AP'},
+  752:{country:'Iraq',               region:'ME PAKISTAN',          geo:'EM'},
+  754:{country:'Ireland',            region:'UK & Ireland',         geo:'EM'},
+  756:{country:'Israel',             region:'ME PAKISTAN',          geo:'EM'},
+  758:{country:'Italy',              region:'Italy',                geo:'EM'},
+  759:{country:'Jamaica',            region:'Central America & Caribbean', geo:'LA'},
+  760:{country:'Japan',              region:'Japan',                geo:'AP'},
+  762:{country:'Jordan',             region:'ME PAKISTAN',          geo:'EM'},
+  764:{country:'Kenya',              region:'Central Africa',       geo:'EM'},
+  766:{country:'South Korea',        region:'Korea',                geo:'AP'},
+  767:{country:'Kuwait',             region:'Gulf States',          geo:'EM'},
+  768:{country:'Lebanon',            region:'ME PAKISTAN',          geo:'EM'},
+  769:{country:'Malawi',             region:'Central Africa',       geo:'EM'},
+  778:{country:'Malaysia',           region:'ASEAN',                geo:'AP'},
+  781:{country:'Mexico',             region:'Mexico',               geo:'LA'},
+  782:{country:'Mozambique',         region:'Southern Africa',      geo:'EM'},
+  787:{country:'Moldova',            region:'Russia CIS',           geo:'EM'},
+  788:{country:'Netherlands',        region:'BeNeLux',              geo:'EM'},
+  791:{country:'Aruba',              region:'Central America & Caribbean', geo:'LA'},
+  796:{country:'New Zealand',        region:'Australia New Zealand', geo:'AP'},
+  799:{country:'Nicaragua',          region:'Central America & Caribbean', geo:'LA'},
+  804:{country:'Nigeria',            region:'West Africa',          geo:'EM'},
+  805:{country:'Oman',               region:'Gulf States',          geo:'EM'},
+  806:{country:'Norway',             region:'Nordic',               geo:'EM'},
+  808:{country:'Pakistan',           region:'ME PAKISTAN',          geo:'EM'},
+  811:{country:'Panama',             region:'Central America & Caribbean', geo:'LA'},
+  813:{country:'Paraguay',           region:'South America',        geo:'LA'},
+  815:{country:'Peru',               region:'South America',        geo:'LA'},
+  818:{country:'Philippines',        region:'ASEAN',                geo:'AP'},
+  820:{country:'Poland',             region:'Poland',               geo:'EM'},
+  822:{country:'Portugal',           region:'Iberia',               geo:'EM'},
+  823:{country:'Qatar',              region:'Gulf States',          geo:'EM'},
+  825:{country:'Zimbabwe',           region:'Southern Africa',      geo:'EM'},
+  826:{country:'Romania',            region:'Central Europe',       geo:'EM'},
+  829:{country:'El Salvador',        region:'Central America & Caribbean', geo:'LA'},
+  832:{country:'Saudi Arabia',       region:'Gulf States',          geo:'EM'},
+  834:{country:'Singapore',          region:'ASEAN',                geo:'AP'},
+  838:{country:'Spain',              region:'Iberia',               geo:'EM'},
+  839:{country:'Anguilla',           region:'Central America & Caribbean', geo:'LA'},
+  841:{country:'Burkina Faso',       region:'West Africa',          geo:'EM'},
+  843:{country:'Suriname',           region:'South America',        geo:'LA'},
+  846:{country:'Sweden',             region:'Nordic',               geo:'EM'},
+  848:{country:'Switzerland',        region:'Switzerland',          geo:'EM'},
+  852:{country:'Vietnam',            region:'ASEAN',                geo:'AP'},
+  856:{country:'Thailand',           region:'ASEAN',                geo:'AP'},
+  857:{country:'Uganda',             region:'Central Africa',       geo:'EM'},
+  858:{country:'Taiwan',             region:'Greater China',        geo:'AP'},
+  859:{country:'Trinidad and Tobago',region:'Central America & Caribbean', geo:'LA'},
+  862:{country:'Turkey',             region:'Turkey',               geo:'EM'},
+  864:{country:'South Africa',       region:'Southern Africa',      geo:'EM'},
+  865:{country:'Egypt',              region:'North West Africa',    geo:'EM'},
+  866:{country:'United Kingdom',     region:'UK & Ireland',         geo:'EM'},
+  869:{country:'Uruguay',            region:'South America',        geo:'LA'},
+  871:{country:'Venezuela',          region:'South America',        geo:'LA'},
+  889:{country:'Ukraine',            region:'Russia CIS',           geo:'EM'},
+  883:{country:'Zambia',             region:'Southern Africa',      geo:'EM'},
+  892:{country:'United States',      region:'USA',                  geo:'AG'}
+};
+// ISO-keyed fallback — covers cases where two brands share an IBMCTY code
+// but have different ISO codes (e.g. 702=FI for P11, 702=EE for FS7600).
+// Resolution order per row: inline col4/5/6 → ISO_FALLBACK[iso] → CTY_FALLBACK[ibmcty]
+var ISO_FALLBACK={
+  'AE':{country:'UAE',                    region:'Gulf States',                  geo:'EM'},
+  'AO':{country:'Angola',                 region:'Southern Africa',              geo:'EM'},
+  'AR':{country:'Argentina',              region:'South America',                geo:'LA'},
+  'AT':{country:'Austria',               region:'Central Europe',               geo:'EM'},
+  'AU':{country:'Australia',             region:'Australia New Zealand',        geo:'AP'},
+  'AW':{country:'Aruba',                 region:'Central America & Caribbean',  geo:'LA'},
+  'BA':{country:'Bosnia & Herzegovina',  region:'Central Europe',               geo:'EM'},
+  'BD':{country:'Bangladesh',            region:'South Asia',                   geo:'AP'},
+  'BE':{country:'Belgium',               region:'BeNeLux',                      geo:'EM'},
+  'BF':{country:'Burkina Faso',          region:'West Africa',                  geo:'EM'},
+  'BG':{country:'Bulgaria',              region:'Central Europe',               geo:'EM'},
+  'BH':{country:'Bahrain',               region:'Gulf States',                  geo:'EM'},
+  'BO':{country:'Bolivia',               region:'South America',                geo:'LA'},
+  'BR':{country:'Brazil',                region:'Brazil',                       geo:'LA'},
+  'BS':{country:'Bahamas',               region:'Central America & Caribbean',  geo:'LA'},
+  'BB':{country:'Barbados',              region:'Central America & Caribbean',  geo:'LA'},
+  'CA':{country:'Canada',                region:'Canada',                       geo:'AG'},
+  'CD':{country:'DR Congo',              region:'Central Africa',               geo:'EM'},
+  'CH':{country:'Switzerland',           region:'Switzerland',                  geo:'EM'},
+  'CI':{country:"Cote d'Ivoire",         region:'West Africa',                  geo:'EM'},
+  'CL':{country:'Chile',                 region:'South America',                geo:'LA'},
+  'CM':{country:'Cameroon',              region:'North West Africa',            geo:'EM'},
+  'CN':{country:'China',                 region:'Greater China',                geo:'AP'},
+  'CO':{country:'Colombia',              region:'South America',                geo:'LA'},
+  'CR':{country:'Costa Rica',            region:'Central America & Caribbean',  geo:'LA'},
+  'CY':{country:'Cyprus',               region:'ME PAKISTAN',                  geo:'EM'},
+  'CZ':{country:'Czech Republic',        region:'Central Europe',               geo:'EM'},
+  'DE':{country:'Germany',               region:'Germany',                      geo:'EM'},
+  'DK':{country:'Denmark',               region:'Nordic',                       geo:'EM'},
+  'DO':{country:'Dominican Republic',    region:'Central America & Caribbean',  geo:'LA'},
+  'EC':{country:'Ecuador',               region:'South America',                geo:'LA'},
+  'EE':{country:'Estonia',               region:'Baltic States',                geo:'EM'},
+  'EG':{country:'Egypt',                 region:'North West Africa',            geo:'EM'},
+  'ES':{country:'Spain',                 region:'Iberia',                       geo:'EM'},
+  'ET':{country:'Ethiopia',              region:'Central Africa',               geo:'EM'},
+  'FI':{country:'Finland',               region:'Nordic',                       geo:'EM'},
+  'FR':{country:'France',                region:'France',                       geo:'EM'},
+  'GB':{country:'United Kingdom',        region:'UK & Ireland',                 geo:'EM'},
+  'GE':{country:'Georgia',               region:'Russia CIS',                   geo:'EM'},
+  'GH':{country:'Ghana',                 region:'West Africa',                  geo:'EM'},
+  'GR':{country:'Greece',                region:'Greece',                       geo:'EM'},
+  'GT':{country:'Guatemala',             region:'Central America & Caribbean',  geo:'LA'},
+  'GY':{country:'Guyana',                region:'South America',                geo:'LA'},
+  'HK':{country:'Hong Kong',             region:'Greater China',                geo:'AP'},
+  'HN':{country:'Honduras',              region:'Central America & Caribbean',  geo:'LA'},
+  'HR':{country:'Croatia',               region:'Central Europe',               geo:'EM'},
+  'HU':{country:'Hungary',               region:'Central Europe',               geo:'EM'},
+  'ID':{country:'Indonesia',             region:'ASEAN',                        geo:'AP'},
+  'IE':{country:'Ireland',               region:'UK & Ireland',                 geo:'EM'},
+  'IL':{country:'Israel',                region:'ME PAKISTAN',                  geo:'EM'},
+  'IN':{country:'India',                 region:'India',                        geo:'AP'},
+  'IQ':{country:'Iraq',                  region:'ME PAKISTAN',                  geo:'EM'},
+  'IT':{country:'Italy',                 region:'Italy',                        geo:'EM'},
+  'JM':{country:'Jamaica',              region:'Central America & Caribbean',  geo:'LA'},
+  'JO':{country:'Jordan',               region:'ME PAKISTAN',                  geo:'EM'},
+  'JP':{country:'Japan',                 region:'Japan',                        geo:'AP'},
+  'KE':{country:'Kenya',                 region:'Central Africa',               geo:'EM'},
+  'KG':{country:'Kyrgyzstan',            region:'Russia CIS',                   geo:'EM'},
+  'KW':{country:'Kuwait',                region:'Gulf States',                  geo:'EM'},
+  'KH':{country:'Cambodia',              region:'ASEAN',                        geo:'AP'},
+  'KY':{country:'Cayman Islands',        region:'Central America & Caribbean',  geo:'LA'},
+  'KR':{country:'South Korea',           region:'Korea',                        geo:'AP'},
+  'KZ':{country:'Kazakhstan',            region:'Russia CIS',                   geo:'EM'},
+  'LB':{country:'Lebanon',               region:'ME PAKISTAN',                  geo:'EM'},
+  'LK':{country:'Sri Lanka',             region:'South Asia',                   geo:'AP'},
+  'MA':{country:'Morocco',               region:'North West Africa',            geo:'EM'},
+  'MD':{country:'Moldova',               region:'Russia CIS',                   geo:'EM'},
+  'MR':{country:'Mauritania',            region:'North West Africa',            geo:'EM'},
+  'MU':{country:'Mauritius',             region:'Southern Africa',              geo:'EM'},
+  'MW':{country:'Malawi',                region:'Central Africa',               geo:'EM'},
+  'MX':{country:'Mexico',                region:'Mexico',                       geo:'LA'},
+  'MY':{country:'Malaysia',              region:'ASEAN',                        geo:'AP'},
+  'MZ':{country:'Mozambique',            region:'Southern Africa',              geo:'EM'},
+  'NG':{country:'Nigeria',               region:'West Africa',                  geo:'EM'},
+  'NI':{country:'Nicaragua',             region:'Central America & Caribbean',  geo:'LA'},
+  'NL':{country:'Netherlands',           region:'BeNeLux',                      geo:'EM'},
+  'NO':{country:'Norway',                region:'Nordic',                       geo:'EM'},
+  'NZ':{country:'New Zealand',           region:'Australia New Zealand',        geo:'AP'},
+  'OM':{country:'Oman',                  region:'Gulf States',                  geo:'EM'},
+  'PA':{country:'Panama',                region:'Central America & Caribbean',  geo:'LA'},
+  'PE':{country:'Peru',                  region:'South America',                geo:'LA'},
+  'PH':{country:'Philippines',           region:'ASEAN',                        geo:'AP'},
+  'PK':{country:'Pakistan',              region:'ME PAKISTAN',                  geo:'EM'},
+  'PL':{country:'Poland',                region:'Poland',                       geo:'EM'},
+  'PT':{country:'Portugal',              region:'Iberia',                       geo:'EM'},
+  'PY':{country:'Paraguay',              region:'South America',                geo:'LA'},
+  'QA':{country:'Qatar',                 region:'Gulf States',                  geo:'EM'},
+  'RO':{country:'Romania',               region:'Central Europe',               geo:'EM'},
+  'RS':{country:'Serbia',                region:'Central Europe',               geo:'EM'},
+  'SA':{country:'Saudi Arabia',          region:'Gulf States',                  geo:'EM'},
+  'SE':{country:'Sweden',                region:'Nordic',                       geo:'EM'},
+  'SG':{country:'Singapore',             region:'ASEAN',                        geo:'AP'},
+  'SI':{country:'Slovenia',              region:'Central Europe',               geo:'EM'},
+  'SK':{country:'Slovakia',              region:'Central Europe',               geo:'EM'},
+  'SN':{country:'Senegal',               region:'West Africa',                  geo:'EM'},
+  'SR':{country:'Suriname',              region:'South America',                geo:'LA'},
+  'SV':{country:'El Salvador',           region:'Central America & Caribbean',  geo:'LA'},
+  'TH':{country:'Thailand',              region:'ASEAN',                        geo:'AP'},
+  'TN':{country:'Tunisia',               region:'North West Africa',            geo:'EM'},
+  'TR':{country:'Turkey',                region:'Turkey',                       geo:'EM'},
+  'TT':{country:'Trinidad and Tobago',   region:'Central America & Caribbean',  geo:'LA'},
+  'TW':{country:'Taiwan',                region:'Greater China',                geo:'AP'},
+  'UA':{country:'Ukraine',               region:'Russia CIS',                   geo:'EM'},
+  'UG':{country:'Uganda',                region:'Central Africa',               geo:'EM'},
+  'US':{country:'United States',         region:'USA',                          geo:'AG'},
+  'UY':{country:'Uruguay',               region:'South America',                geo:'LA'},
+  'UZ':{country:'Uzbekistan',            region:'Russia CIS',                   geo:'EM'},
+  'VE':{country:'Venezuela',             region:'South America',                geo:'LA'},
+  'VN':{country:'Vietnam',               region:'ASEAN',                        geo:'AP'},
+  'ZA':{country:'South Africa',          region:'Southern Africa',              geo:'EM'},
+  'ZM':{country:'Zambia',                region:'Southern Africa',              geo:'EM'},
+  'ZW':{country:'Zimbabwe',              region:'Southern Africa',              geo:'EM'}
+};
+// CTY_META keyed by "IBMCTY|ISO" so each brand's rows resolve independently
+var CTY_META={};
+MASTER_ROWS.forEach(function(r){
+  var ibmcty=r[3], iso=String(r[9]||'').trim();
+  if(!ibmcty) return;
+  var k=ibmcty+'|'+iso;
+  if(!CTY_META[k]){
+    var country=r[4]||'', region=r[5]||'', geo=r[6]||'';
+    if(!country){
+      // ISO_FALLBACK is the primary resolver — exact match on ISO code
+      var fb=ISO_FALLBACK[iso]||CTY_FALLBACK[ibmcty];
+      if(fb){ country=fb.country; region=fb.region; geo=fb.geo; }
+    }
+    CTY_META[k]={country:country, region:region, geo:geo};
+  }
+});
+// Helper used by detail rows — look up by IBMCTY+ISO composite key (exact, per-row)
+function getCtyMeta(ibmcty, iso){
+  var k=ibmcty+'|'+(iso||'');
+  var fb=ISO_FALLBACK[iso||''];
+  return CTY_META[k]||fb||CTY_FALLBACK[ibmcty]||{country:'',region:'',geo:''};
+}
+// Per-brand IBMCTY→first-seen-ISO index — used by summary views (V1/V2/V3)
+// that only carry an IBMCTY code, not an ISO per aggregated row.
+var _isoBy={};
+BRANDS.forEach(function(b){ var m=_isoBy[b.key]={}; (BRAND_ROWS[b.key]||[]).forEach(function(r){ if(r[3]&&!m[r[3]]) m[r[3]]=String(r[9]||'').trim(); }); });
+// For summary views: pick ISO by active brand, then P11, then any brand, then resolve via getCtyMeta
+function getCtyMetaByBrand(ibmcty){
+  var brand=getActiveBrand();
+  var iso='';
+  if(brand!=='ALL'&&_isoBy[brand]&&_isoBy[brand][ibmcty]) iso=_isoBy[brand][ibmcty];
+  if(!iso&&_isoBy['P11']&&_isoBy['P11'][ibmcty]) iso=_isoBy['P11'][ibmcty];
+  for(var i=0;i<BRANDS.length&&!iso;i++){ var mm=_isoBy[BRANDS[i].key]; if(mm&&mm[ibmcty]) iso=mm[ibmcty]; }
+  return getCtyMeta(ibmcty, iso);
+}
+
+// Sort state per view
+var SS={1:{c:'t',d:-1},2:{c:'t',d:-1},3:{c:'t',d:-1}};
+
+// ── Helpers ───────────────────────────────────────────────────────────────
+function esc(v){return String(v).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+function pct(i,t){return t?Math.round(i/t*100)+'%':'--';}
+function mx(arr,fn){var m=1;arr.forEach(function(r){var v=fn(r);if(v>m)m=v;});return m;}
+function tok(raw){return raw.split(',').map(function(t){return t.trim().toLowerCase();}).filter(Boolean);}
+
+// ── IBM/CLIENT derivation from CNAME (applies to ALL brands) ─────────────
+// CNAME contains "IBM", "International Business Machine/s" → IBM, else CLIENT
+function deriveIbmClient(cname){
+  var cu=String(cname||'').trim().toUpperCase();
+  if(/\bIBM\b/.test(cu)||/INTERNATIONAL BUSINESS MACHINE/.test(cu)) return 'IBM';
+  return 'CLIENT';
+}
+
+// ── Comments derivation (6-rule priority ladder, ALL brands) ─────────────
+// Indices: 2=STATUS 10=CNAME 16=INSTD 17=SHIPD 19=SVCLVD 20=SVCLVC 21=SVCSTA 22=SVCEND 27=IBM/CLIENT
+// Rule order: 1 IBM  2 Contract Expired  3 Invalid  4 Complete  5 No Entitlement  6 Not Installed
+var _TODAY=new Date(); _TODAY.setHours(0,0,0,0);
+function _blank(v){return v===null||v===undefined||String(v).trim()==='';}
+function _dt(v){
+  if(_blank(v)) return null;
+  var s=String(v).trim();
+  if(s==='0001-01-01'||s==='') return null;
+  var d=new Date(s); return isNaN(d.getTime())?null:d;
+}
+function deriveComment(r){
+  // Use the pre-computed value in col 26 (built by rebuild-dashboard.ps1).
+  // Col 26 is the authoritative Comments value — avoids duplicating the logic.
+  return String(r[26]||'').trim();
+}
+
+// ── Comments filter ───────────────────────────────────────────────────────
+function getChecked(){
+  var sel=[];
+  document.querySelectorAll('#cd1 .cck').forEach(function(c){if(c.checked)sel.push(c.value);});
+  return sel;
+}
+function syncAll(){
+  // read state from first panel, copy to all
+  var vals={};
+  document.querySelectorAll('#cd1 .cck').forEach(function(c){vals[c.value]=c.checked;});
+  document.querySelectorAll('.cck').forEach(function(c){if(vals.hasOwnProperty(c.value))c.checked=vals[c.value];});
+  updateBadges();
+  renderAll();
+}
+function updateBadges(){
+  var n=getChecked().length;
+  ['cbadge1','cbadge2','cbadge3'].forEach(function(id){
+    var el=document.getElementById(id);
+    if(el){el.textContent=n;el.style.display=n?'inline-flex':'none';}
+  });
+}
+function getCmtSet(){var s=getChecked();return s.length?new Set(s):null;}
+function getActiveBrand(){
+  var el=document.querySelector('.brk:checked');
+  return el?el.value:'ALL';
+}
+function filteredRows(){
+  var brand=getActiveBrand();
+  var cmts=getCmtSet();
+  var src = brand==='ALL' ? MASTER_ROWS : (BRAND_ROWS[brand]||[]);
+  if(!cmts) return src;
+  return src.filter(function(r){return cmts.has(deriveComment(r));});
+}
+
+// ── Tab switching ─────────────────────────────────────────────────────────
+document.querySelectorAll('.tab').forEach(function(tab){
+  tab.addEventListener('click',function(){
+    document.querySelectorAll('.tab').forEach(function(t){t.classList.remove('active');});
+    document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active');});
+    tab.classList.add('active');
+    document.getElementById('view-'+tab.dataset.tab).classList.add('active');
+  });
+});
+
+// ── Comments dropdown ─────────────────────────────────────────────────────
+['1','2','3'].forEach(function(n){
+  var btn=document.getElementById('cb'+n);
+  var wrap=document.getElementById('cw'+n);
+  var drop=document.getElementById('cd'+n);
+  if(!btn||!wrap||!drop) return;
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    var isOpen=wrap.classList.contains('open');
+    document.querySelectorAll('.cmt-wrap').forEach(function(w){w.classList.remove('open');});
+    if(!isOpen) wrap.classList.add('open');
+  });
+  drop.addEventListener('click',function(e){e.stopPropagation();});
+  drop.querySelectorAll('.cck').forEach(function(chk){
+    chk.addEventListener('change',function(){
+      // sync this panel state to others then re-render
+      var vals={};
+      drop.querySelectorAll('.cck').forEach(function(c){vals[c.value]=c.checked;});
+      document.querySelectorAll('.cck').forEach(function(c){if(vals.hasOwnProperty(c.value))c.checked=vals[c.value];});
+      updateBadges();renderAll();
+    });
+  });
+  var clr=document.getElementById('ccl'+n);
+  if(clr) clr.addEventListener('click',function(e){
+    e.stopPropagation();
+    document.querySelectorAll('.cck').forEach(function(c){c.checked=false;});
+    updateBadges();renderAll();
+  });
+});
+document.addEventListener('click',function(){
+  document.querySelectorAll('.cmt-wrap').forEach(function(w){w.classList.remove('open');});
+});
+
+// ── Sort headers ──────────────────────────────────────────────────────────
+document.querySelectorAll('thead th[data-col]').forEach(function(th){
+  th.addEventListener('click',function(){
+    var tbodyId=th.closest('table').querySelector('tbody').id;
+    var vid=tbodyId==='tb1'?1:tbodyId==='tb2'?2:3;
+    var c=th.dataset.col;
+    var st=SS[vid];
+    if(st.c===c) st.d*=-1; else{st.c=c;st.d=-1;}
+    if(vid===1) renderV1(); else if(vid===2) renderV2(); else renderV3();
+  });
+});
+
+// ── Search inputs ─────────────────────────────────────────────────────────
+['s1','s2','s3'].forEach(function(id){
+  document.getElementById(id).addEventListener('input',function(){renderAll();});
+});
+
+// ── KPIs ──────────────────────────────────────────────────────────────────
+// KPI click handlers
+(function(){
+  var cards=[{id:'kpiCard1',st:'BOTH'},{id:'kpiCard2',st:'IN'},{id:'kpiCard3',st:'SH'},{id:'kpiCard4',st:'BOTH'}];
+  cards.forEach(function(cfg){
+    var el=document.getElementById(cfg.id);
+    if(!el) return;
+    el.addEventListener('click',function(){
+      openModal('*','*',cfg.st,undefined,undefined,undefined,undefined);
+    });
+  });
+}());
+function updateKpis(){
+  var fr=filteredRows();
+  var tot=fr.length;
+  var ins=0,sh=0;
+  fr.forEach(function(r){if(r[2]==='IN')ins++;else if(r[2]==='SH')sh++;});
+  var ctys=new Set(fr.map(function(r){return r[3];})).size;
+  var filt=getCmtSet()!=null;
+  document.getElementById('kpiTotal').textContent=tot.toLocaleString();
+  document.getElementById('kpiTotalSub').textContent=filt?'Filtered records':'All records';
+  document.getElementById('kpiIn').textContent=ins.toLocaleString();
+  document.getElementById('kpiInSub').textContent=(tot?Math.round(ins/tot*100):0)+'% of '+(filt?'filtered':'total');
+  document.getElementById('kpiSh').textContent=sh.toLocaleString();
+  document.getElementById('kpiShSub').textContent=(tot?Math.round(sh/tot*100):0)+'% of '+(filt?'filtered':'total');
+  document.getElementById('kpiCty').textContent=ctys;
+  document.getElementById('hdrRecs').textContent=tot.toLocaleString()+' records';
+}
+
+// ── Bar ───────────────────────────────────────────────────────────────────
+function bar2(i,s,mI,mS){
+  return '<div class="bar-row"><div class="bar-bg"><div class="bar-fill bi" style="width:'+(mI?Math.round(i/mI*100):0)+'%"></div></div><span class="bar-lbl" style="color:#34d399">'+(i||'')+'</span></div>'+
+         '<div class="bar-row"><div class="bar-bg"><div class="bar-fill bs" style="width:'+(mS?Math.round(s/mS*100):0)+'%"></div></div><span class="bar-lbl" style="color:#fbbf24">'+(s||'')+'</span></div>';
+}
+
+// ── Clickable spans ───────────────────────────────────────────────────────
+function mkA(cty,mt,st,cu,sv){
+  var a='data-cty="'+esc(cty||'*')+'" data-mt="'+esc(mt||'*')+'" data-st="'+st+'"';
+  if(cu!==undefined) a+=' data-cu="'+esc(cu)+'"';
+  if(sv!==undefined) a+=' data-sv="'+esc(sv)+'"';
+  return a;
+}
+function clkIn(v,cty,mt,cu,sv){return v?'<span class="clk clk-in" '+mkA(cty,mt,'IN',cu,sv)+'>'+v+'</span>':'<span class="zero">0</span>';}
+function clkSh(v,cty,mt,cu,sv){return v?'<span class="clk clk-sh" '+mkA(cty,mt,'SH',cu,sv)+'>'+v+'</span>':'<span class="zero">0</span>';}
+function clkTot(v,cty,mt,cu,sv){return v?'<span class="clk clk-tot" '+mkA(cty,mt,'BOTH',cu,sv)+'>'+v+'</span>':'<span class="zero">0</span>';}
+
+// ── Modal ─────────────────────────────────────────────────────────────────
+document.addEventListener('click',function(e){
+  var el=e.target;
+  if(el.classList.contains('clk-in')||el.classList.contains('clk-sh')||el.classList.contains('clk-tot')){
+    openModal(el.dataset.cty,el.dataset.mt,el.dataset.st,el.dataset.cu,el.dataset.sv,el.dataset.geo,el.dataset.cname);
+    return;
+  }
+  if(el.id==='mClose'||el.id==='overlay') document.getElementById('overlay').classList.remove('open');
+});
+
+var _modalRows=[], _modalTitle='Records';
+
+function openModal(cty,mt,st,cu,sv,geo,cname){
+  var ctyN=(cty&&cty!=='*')?+cty:null;
+  var mtN=(mt&&mt!=='*')?+mt:null;
+  var fr=filteredRows();
+  var rows=fr.filter(function(r){
+    if(ctyN!==null&&r[3]!==ctyN) return false;
+    if(mtN!==null&&r[8]!==mtN) return false;
+    // geo and cname are resolved at runtime — r[6]/r[4] are blank in compact rows
+    if(geo){
+      var cm=getCtyMeta(r[3],String(r[9]||'').trim());
+      var rowGeo=r[6]||cm.geo||'';
+      if(rowGeo!==geo) return false;
+    }
+    if(cname){
+      var cm=getCtyMeta(r[3],String(r[9]||'').trim());
+      var rowCname=r[4]||cm.country||'';
+      if(rowCname.trim()!==cname) return false;
+    }
+    if(st!=='BOTH'&&r[2]!==st) return false;
+    if(cu&&(r[10]||'').trim()!==cu) return false;
+    if(sv){
+      var rowSv=r[19]||'(none)';
+      if(rowSv!==sv) return false;
+    }
+    return true;
+  });
+  _modalRows=rows;
+  var lab=st==='IN'?'Installed':st==='SH'?'Shipped':'All';
+  var _ab=getActiveBrand();
+  _modalTitle=(function(){var b=BRANDS.filter(function(x){return x.key===_ab;})[0];return b?b.file:'ALL_Programs';}())+'_'+lab+'_Records';
+  document.getElementById('mTitle').textContent=lab+' Record Details';
+  var ctx=ctyN?'Country '+cty:(geo?'GEO: '+geo:(cname?'Country: '+cname:'All Countries'));
+  if(mtN) ctx+=' \u2014 MT '+mt;
+  if(cu) ctx+=' \u2014 '+cu;
+  if(sv) ctx+=' \u2014 '+sv;
+  document.getElementById('mCtx').textContent=ctx+' \u2014 '+rows.length+' records';
+  document.getElementById('mCount').textContent=rows.length+' records';
+  document.getElementById('mHead').innerHTML='<th>#</th>'+COLS.map(function(c){return '<th>'+c+'</th>';}).join('');
+  var mb=document.getElementById('mBody'); mb.innerHTML='';
+  rows.forEach(function(r,i){
+    var tag=r[2]==='IN'?'<span class="st-in">IN</span>':'<span class="st-sh">SH</span>';
+    var cmt=deriveComment(r);
+    var cm=getCtyMeta(r[3],String(r[9]||'').trim());
+    mb.insertAdjacentHTML('beforeend','<tr><td style="color:#374151">'+(i+1)+'</td>'+COL_ORDER.map(function(ci){
+      var v=r[ci];
+      if(ci===2) return '<td>'+tag+'</td>';
+      if(ci===26) return '<td>'+(cmt||'--')+'</td>';
+      if(ci===4) return '<td>'+((v||cm.country||'--'))+'</td>';
+      if(ci===5) return '<td>'+((v||cm.region||'--'))+'</td>';
+      if(ci===6) return '<td>'+((v||cm.geo||'--'))+'</td>';
+      return '<td>'+(v===null||v===''?'--':v)+'</td>';
+    }).join('')+'</tr>');
+  });
+  document.getElementById('overlay').classList.add('open');
+}
+
+// ── Download helpers ──────────────────────────────────────────────────────
+function escCsv(v){
+  var s=(v===null||v===undefined)?'':String(v);
+  if(s.indexOf(',')>=0||s.indexOf('"')>=0||s.indexOf('\n')>=0)
+    return '"'+s.replace(/"/g,'""')+'"';
+  return s;
+}
+function downloadCSV(){
+  if(!_modalRows.length) return;
+  var lines=[COLS.map(escCsv).join(',')];
+  _modalRows.forEach(function(r){
+    var cmt=deriveComment(r);
+    var cm=getCtyMeta(r[3],String(r[9]||'').trim());
+    lines.push(COL_ORDER.map(function(ci){
+      var v=r[ci];
+      if(ci===26) return escCsv(cmt);
+      if(ci===4) return escCsv(v||cm.country||'');
+      if(ci===5) return escCsv(v||cm.region||'');
+      if(ci===6) return escCsv(v||cm.geo||'');
+      return escCsv(v===null||v===''?'':v);
+    }).join(','));
+  });
+  var blob=new Blob([lines.join('\r\n')],{type:'text/csv;charset=utf-8;'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=_modalTitle+'.csv';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+function downloadXLSX(){
+  if(!_modalRows.length) return;
+  // SpreadsheetML — opens natively in Excel, no external library needed
+  function xmlCell(v,t){
+    var s=(v===null||v===undefined)?'':String(v);
+    var safe=s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    return '<Cell ss:StyleID="'+(t||'d')+'"><Data ss:Type="String">'+safe+'</Data></Cell>';
+  }
+  var hdr='<Row>'+COLS.map(function(c){return xmlCell(c,'h');}).join('')+'</Row>';
+  var body=_modalRows.map(function(r){
+    var cmt=deriveComment(r);
+    var cm=getCtyMeta(r[3],String(r[9]||'').trim());
+    return '<Row>'+COL_ORDER.map(function(ci){
+      var v=r[ci];
+      if(ci===26) return xmlCell(cmt,'d');
+      if(ci===4) return xmlCell(v||cm.country||'','d');
+      if(ci===5) return xmlCell(v||cm.region||'','d');
+      if(ci===6) return xmlCell(v||cm.geo||'','d');
+      return xmlCell(v===null||v===''?'':v,'d');
+    }).join('')+'</Row>';
+  }).join('');
+  var xml='<?xml version="1.0" encoding="UTF-8"?>'
+    +'<?mso-application progid="Excel.Sheet"?>'
+    +'<Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet" '
+    +'xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">'
+    +'<Styles>'
+    +'<Style ss:ID="h"><Font ss:Bold="1" ss:Color="#FFFFFF"/><Interior ss:Color="#1E3A5F" ss:Pattern="Solid"/></Style>'
+    +'<Style ss:ID="d"><Font ss:Color="#1F2328"/></Style>'
+    +'</Styles>'
+    +'<Worksheet ss:Name="Records"><Table>'+hdr+body+'</Table></Worksheet>'
+    +'</Workbook>';
+  var blob=new Blob([xml],{type:'application/vnd.ms-excel;charset=utf-8;'});
+  var a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download=_modalTitle+'.xls';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+}
+document.getElementById('dlCsv').addEventListener('click',downloadCSV);
+document.getElementById('dlXlsx').addEventListener('click',downloadXLSX);
+
+// ── Pivot cards ───────────────────────────────────────────────────────────
+function aggRaw(rows,fn){
+  var m={};
+  rows.forEach(function(r){
+    var k=fn(r); if(k===undefined||k===null||k==='') return;
+    if(!m[k]) m[k]={i:0,s:0};
+    if(r[2]==='IN') m[k].i++; else if(r[2]==='SH') m[k].s++;
+  });
+  return Object.keys(m).map(function(k){return{k:k,i:m[k].i,s:m[k].s,t:m[k].i+m[k].s};}).sort(function(a,b){return b.t-a.t;});
+}
+function pivCard(key,i,s,cty,mt,cu,sv,extra,geo,cname){
+  var t=i+s; var ip=t?Math.round(i/t*100)+'%':'--';
+  var ia=mkA(cty,mt,'IN',cu,sv); var sa=mkA(cty,mt,'SH',cu,sv); var ta=mkA(cty,mt,'BOTH',cu,sv);
+  if(geo){ia+=' data-geo="'+esc(geo)+'"';sa+=' data-geo="'+esc(geo)+'"';ta+=' data-geo="'+esc(geo)+'"';}
+  if(cname){ia+=' data-cname="'+esc(cname)+'"';sa+=' data-cname="'+esc(cname)+'"';ta+=' data-cname="'+esc(cname)+'"';}
+  var iH=i?'<span class="pc-in clk clk-in" '+ia+'>'+i+'</span>':'<span style="color:#374151;font-size:15px;font-weight:800">0</span>';
+  var sH=s?'<span class="pc-sh clk clk-sh" '+sa+'>'+s+'</span>':'<span style="color:#374151;font-size:15px;font-weight:800;margin-left:6px">0</span>';
+  var tH=t?'<span class="pc-tot clk clk-tot" '+ta+'>/'+t+'</span>':'<span class="pc-tot">/0</span>';
+  return '<div class="piv-card'+(extra?' '+extra:'')+'"><div class="pc-key" title="'+esc(key)+'">'+(key||'--')+'</div><div class="pc-row">'+iH+sH+tH+'</div><div class="pc-lbl"><span style="color:#34d399">IN</span>&nbsp;<span style="color:#fbbf24">SH</span>&nbsp;'+ip+'</div></div>';
+}
+function renderPivots(fr){
+  document.getElementById('piv1-geo').innerHTML=aggRaw(fr,function(r){var cm=getCtyMeta(r[3],String(r[9]||'').trim());return r[6]||cm.geo||'';}).map(function(x){return pivCard(x.k,x.i,x.s,'*','*',undefined,undefined,undefined,x.k);}).join('');
+  document.getElementById('piv1-cn').innerHTML=aggRaw(fr,function(r){var cm=getCtyMeta(r[3],String(r[9]||'').trim());return (r[4]||cm.country||'').trim();}).slice(0,15).map(function(x){return pivCard(x.k,x.i,x.s,'*','*',undefined,undefined,undefined,undefined,x.k);}).join('');
+  document.getElementById('piv2-mt').innerHTML=aggRaw(fr,function(r){return r[8];}).map(function(x){return pivCard('MT '+x.k,x.i,x.s,'*',x.k);}).join('');
+  document.getElementById('piv2-geo').innerHTML=aggRaw(fr,function(r){var cm=getCtyMeta(r[3],String(r[9]||'').trim());return r[6]||cm.geo||'';}).map(function(x){return pivCard(x.k,x.i,x.s,'*','*',undefined,undefined,undefined,x.k);}).join('');
+  var _svOrder=['2H COMMITTED FIX','4H COMMITTED FIX','6H COMMITTED FIX','8H COMMITTED FIX','12H COMMITTED FIX','24H COMMITTED FIX','48H COMMITTED FIX','72H COMMITTED FIX','SD SAME DAY','ON-SITE REPAIR,ORT=SD','NBD NEXT BUSINESS DAY','ON-SITE REPAIR,ORT=NBD',','];
+  function _svPri(k){if(k==='(none)')return 999;var u=k.toUpperCase();for(var i=0;i<_svOrder.length;i++){if(u.indexOf(_svOrder[i])===0)return i;}return 998;}
+  document.getElementById('piv3-sv').innerHTML=aggRaw(fr,function(r){return r[19]||'(none)';}).sort(function(a,b){var pa=_svPri(a.k),pb=_svPri(b.k);return pa-pb;}).map(function(x){return pivCard(x.k,x.i,x.s,'*','*',undefined,x.k,'piv-svlv');}).join('');
+  var cuMap={};
+  fr.forEach(function(r){var cu=(r[10]||'').trim();if(!cu)return;if(!cuMap[cu])cuMap[cu]={i:0,s:0,sv:{}};if(r[2]==='IN')cuMap[cu].i++;else if(r[2]==='SH')cuMap[cu].s++;var sv=r[19]||'--';cuMap[cu].sv[sv]=(cuMap[cu].sv[sv]||0)+1;});
+  document.getElementById('piv3-cu').innerHTML=Object.keys(cuMap).map(function(k){var v=cuMap[k];return{k:k,i:v.i,s:v.s,t:v.i+v.s,sv:v.sv};}).sort(function(a,b){return b.t-a.t;}).slice(0,10).map(function(x){
+    var topSv=Object.keys(x.sv).map(function(k){return{k:k,n:x.sv[k]};}).sort(function(a,b){return b.n-a.n;}).slice(0,2).map(function(a){return a.k;}).join(' / ');
+    return '<div class="piv-card" style="min-width:180px"><div class="pc-key" title="'+esc(x.k)+'" style="max-width:200px">'+x.k+'</div><div class="pc-row"><span class="pc-in clk clk-in" data-cty="*" data-mt="*" data-st="IN" data-cu="'+esc(x.k)+'">'+x.i+'</span><span class="pc-sh clk clk-sh" data-cty="*" data-mt="*" data-st="SH" data-cu="'+esc(x.k)+'">'+x.s+'</span><span class="pc-tot clk clk-tot" data-cty="*" data-mt="*" data-st="BOTH" data-cu="'+esc(x.k)+'">/'+(x.i+x.s)+'</span></div><div class="pc-lbl">'+(x.t?Math.round(x.i/x.t*100):'--')+'% IN<br><span style="color:#a78bfa;font-size:9px">'+(topSv||'--')+'</span></div></div>';
+  }).join('');
+}
+
+// ── Row match ─────────────────────────────────────────────────────────────
+// Helper: resolve country name for a compact row (uses ISO first, then IBMCTY fallback)
+function _rowCountry(r){var cm=getCtyMeta(r[3],String(r[9]||'').trim());return(r[4]||cm.country||'').toLowerCase();}
+// Core word-start matcher: returns true if any whitespace/comma/hyphen-separated
+// token in `text` STARTS WITH `q`. This prevents "on" matching "Ang-on-a" mid-word,
+// while still matching "On-site Repair" (starts with "on") and "Angola" when typed as "ang".
+// Also allows exact numeric match (IBMCTY codes, MT numbers).
+function _wMatch(text,q){
+  if(!text) return false;
+  var t=String(text).toLowerCase();
+  if(t===q) return true;                          // exact match
+  if(t.indexOf(q)===0) return true;               // starts with query
+  var tokens=t.split(/[\s,\-\/]+/);               // split on space,comma,hyphen,slash
+  for(var i=0;i<tokens.length;i++){if(tokens[i].indexOf(q)===0) return true;}
+  return false;
+}
+function mRow1(r,tks){
+  var cty=_rowCountry(r);
+  return tks.every(function(q){
+    return String(r[3])===q||_wMatch(cty,q);
+  });
+}
+function mRow2(r,tks){
+  var cty=_rowCountry(r);
+  return tks.every(function(q){
+    return String(r[3])===q||String(r[8]||'')===q||_wMatch(cty,q);
+  });
+}
+function mRow3(r,tks){
+  var cty=_rowCountry(r);
+  var sv=(r[19]||'');
+  return tks.every(function(q){
+    if(String(r[3])===q) return true;             // exact IBMCTY code
+    if(String(r[8]||'')===q) return true;         // exact MT number
+    if(_wMatch(r[10]||'',q)) return true;         // customer name word-start
+    if(_wMatch(cty,q)) return true;               // country name word-start
+    return _wMatch(sv,q);                         // SVCLVD word-start
+  });
+}
+
+// ── Sort ──────────────────────────────────────────────────────────────────
+function srt(arr,vid){
+  var st=SS[vid];var c=st.c;var d=st.d;
+  return arr.slice().sort(function(a,b){
+    var av=c==='t'?a.i+a.s:(c==='cu'||c==='sv'?a[c]:a[c]||0);
+    var bv=c==='t'?b.i+b.s:(c==='cu'||c==='sv'?b[c]:b[c]||0);
+    if(typeof av==='string') return d*(av<bv?-1:av>bv?1:0);
+    return d*(bv-av);
+  });
+}
+
+// ── Render V1 ─────────────────────────────────────────────────────────────
+function renderV1(){
+  var tks=tok(document.getElementById('s1').value||'');
+  var fr=filteredRows(); var agg={};
+  fr.forEach(function(r){var c=r[3];if(!c)return;if(tks.length&&!mRow1(r,tks))return;if(!agg[c])agg[c]={c:c,i:0,s:0};if(r[2]==='IN')agg[c].i++;else if(r[2]==='SH')agg[c].s++;});
+  var d=srt(Object.values(agg),1);
+  var mI=mx(d,function(r){return r.i;}),mS=mx(d,function(r){return r.s;});
+  var gI=0,gS=0; d.forEach(function(r){gI+=r.i;gS+=r.s;});
+  document.getElementById('rc1').textContent=d.length+' countries';
+  var tb=document.getElementById('tb1');tb.innerHTML='';
+  tb.insertAdjacentHTML('beforeend','<tr class="summary-row"><td colspan="4"><strong style="color:#6366f1;font-size:11px">&#9656; GRAND TOTAL</strong></td><td>'+clkIn(gI,'*','*')+'</td><td>'+clkSh(gS,'*','*')+'</td><td>'+clkTot(gI+gS,'*','*')+'</td><td colspan="2"></td></tr>');
+  d.forEach(function(r){
+    var t=r.i+r.s;var p=pct(r.i,t);var m=getCtyMetaByBrand(r.c);
+    tb.insertAdjacentHTML('beforeend','<tr><td><strong style="color:#818cf8">'+r.c+'</strong></td><td style="color:#6ee7b7">'+(m.country||'--')+'</td><td style="color:#a78bfa">'+(m.region||'--')+'</td><td style="color:#fcd34d;font-size:11px;font-weight:700">'+(m.geo||'--')+'</td><td>'+clkIn(r.i,r.c,'*')+'</td><td>'+clkSh(r.s,r.c,'*')+'</td><td>'+clkTot(t,r.c,'*')+'</td><td><span class="badge '+(r.i>r.s?'b-in':r.s>r.i?'b-sh':'b-eq')+'">'+p+'</span></td><td class="bar-col">'+bar2(r.i,r.s,mI,mS)+'</td></tr>');
+  });
+}
+
+// ── Render V2 ─────────────────────────────────────────────────────────────
+function renderV2(){
+  var tks=tok(document.getElementById('s2').value||'');
+  var fr=filteredRows();var agg={};
+  fr.forEach(function(r){var c=r[3];var mt=r[8];if(!c||!mt)return;if(tks.length&&!mRow2(r,tks))return;var k=c+'_'+mt;if(!agg[k])agg[k]={c:c,m:mt,i:0,s:0};if(r[2]==='IN')agg[k].i++;else if(r[2]==='SH')agg[k].s++;});
+  var d=srt(Object.values(agg),2);
+  var mI=mx(d,function(r){return r.i;}),mS=mx(d,function(r){return r.s;});
+  var gI=0,gS=0;d.forEach(function(r){gI+=r.i;gS+=r.s;});
+  document.getElementById('rc2').textContent=d.length+' rows';
+  var tb=document.getElementById('tb2');tb.innerHTML='';
+  tb.insertAdjacentHTML('beforeend','<tr class="summary-row"><td colspan="5"><strong style="color:#6366f1;font-size:11px">&#9656; GRAND TOTAL</strong></td><td>'+clkIn(gI,'*','*')+'</td><td>'+clkSh(gS,'*','*')+'</td><td>'+clkTot(gI+gS,'*','*')+'</td><td colspan="2"></td></tr>');
+  var byC={};d.forEach(function(r){if(!byC[r.c])byC[r.c]={i:0,s:0};byC[r.c].i+=r.i;byC[r.c].s+=r.s;});
+  var prevC=null;
+  d.forEach(function(r){
+    if(r.c!==prevC){prevC=r.c;var ci=byC[r.c].i,cs=byC[r.c].s,ct=ci+cs,mm=getCtyMetaByBrand(r.c);
+      tb.insertAdjacentHTML('beforeend','<tr class="summary-row"><td><strong style="color:#818cf8">'+r.c+'</strong></td><td style="color:#6ee7b7">'+(mm.country||'--')+'</td><td style="color:#a78bfa">'+(mm.region||'--')+'</td><td style="color:#fcd34d;font-size:11px;font-weight:700">'+(mm.geo||'--')+'</td><td style="color:#4b5563;font-size:10px;font-style:italic">Country Total</td><td>'+clkIn(ci,r.c,'*')+'</td><td>'+clkSh(cs,r.c,'*')+'</td><td>'+clkTot(ct,r.c,'*')+'</td><td colspan="2"></td></tr>');}
+    var t=r.i+r.s;var p=pct(r.i,t);var m=getCtyMetaByBrand(r.c);
+    tb.insertAdjacentHTML('beforeend','<tr><td><strong style="color:#818cf8">'+r.c+'</strong></td><td style="color:#6ee7b7">'+(m.country||'--')+'</td><td style="color:#a78bfa">'+(m.region||'--')+'</td><td style="color:#fcd34d;font-size:11px;font-weight:700">'+(m.geo||'--')+'</td><td><span style="background:#1e3a5f;color:#60a5fa;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">'+r.m+'</span></td><td>'+clkIn(r.i,r.c,r.m)+'</td><td>'+clkSh(r.s,r.c,r.m)+'</td><td>'+clkTot(t,r.c,r.m)+'</td><td><span class="badge '+(r.i>r.s?'b-in':r.s>r.i?'b-sh':'b-eq')+'">'+p+'</span></td><td class="bar-col">'+bar2(r.i,r.s,mI,mS)+'</td></tr>');
+  });
+}
+
+// ── Render V3 ─────────────────────────────────────────────────────────────
+function renderV3(){
+  var tks=tok(document.getElementById('s3').value||'');
+  var fr=filteredRows();var agg={};
+  fr.forEach(function(r){var c=r[3];var mt=r[8];var cu=(r[10]||'').trim();var sv=r[19]||'';if(!c)return;if(tks.length&&!mRow3(r,tks))return;var k=c+'|'+mt+'|'+cu+'|'+sv;if(!agg[k])agg[k]={c:c,m:mt,cu:cu,sv:sv,i:0,s:0};if(r[2]==='IN')agg[k].i++;else if(r[2]==='SH')agg[k].s++;});
+  var d=srt(Object.values(agg),3);
+  var total=d.length;var vis=d.slice(0,600);
+  document.getElementById('rc3').textContent=total+(total>600?' (showing 600)':'')+' rows';
+  var tb=document.getElementById('tb3');tb.innerHTML='';
+  vis.forEach(function(r){
+    var t=r.i+r.s;var p=pct(r.i,t);var m=getCtyMetaByBrand(r.c);
+    tb.insertAdjacentHTML('beforeend','<tr><td><strong style="color:#818cf8">'+r.c+'</strong></td><td style="color:#6ee7b7">'+(m.country||'--')+'</td><td style="color:#a78bfa">'+(m.region||'--')+'</td><td style="color:#fcd34d;font-size:11px;font-weight:700">'+(m.geo||'--')+'</td><td><span style="background:#1e3a5f;color:#60a5fa;padding:2px 8px;border-radius:10px;font-size:11px;font-weight:700">'+r.m+'</span></td><td style="max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" title="'+esc(r.cu)+'">'+(r.cu||'--')+'</td><td style="max-width:180px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:11px;color:#a78bfa" title="'+esc(r.sv)+'">'+(r.sv||'--')+'</td><td>'+clkIn(r.i,r.c,r.m,r.cu,r.sv)+'</td><td>'+clkSh(r.s,r.c,r.m,r.cu,r.sv)+'</td><td>'+clkTot(t,r.c,r.m,r.cu,r.sv)+'</td><td><span class="badge '+(r.i>r.s?'b-in':r.s>r.i?'b-sh':'b-eq')+'">'+p+'</span></td></tr>');
+  });
+}
+
+// ── Boot ──────────────────────────────────────────────────────────────────
+
+// ── Brands filter wiring ──────────────────────────────────────────────────
+(function(){
+  var btn=document.getElementById('hdrBrandBtn');
+  var wrap=document.getElementById('hdrBrandWidget');
+  var drop=document.getElementById('hdrBrandDrop');
+  if(!btn||!wrap||!drop) return;
+
+  // Toggle dropdown open/close
+  btn.addEventListener('click',function(e){
+    e.stopPropagation();
+    var isOpen=drop.style.display==='block';
+    // close all comment dropdowns first
+    document.querySelectorAll('.cmt-wrap').forEach(function(w){w.classList.remove('open');});
+    drop.style.display=isOpen?'none':'block';
+  });
+  drop.addEventListener('click',function(e){e.stopPropagation();});
+
+  // Close when clicking outside
+  document.addEventListener('click',function(){drop.style.display='none';});
+
+  // Brand radio change → update badge + re-render
+  drop.querySelectorAll('.brk').forEach(function(r){
+    r.addEventListener('change',function(){
+      var v=document.querySelector('.brk:checked');
+      var bpill=document.getElementById('hdrBrandBadge');
+      if(bpill){
+        var bv=v?v.value:'ALL';
+          var _bb=BRANDS.filter(function(x){return x.key===bv;})[0];
+          if(_bb){bpill.textContent=_bb.label;bpill.className='brand-pill '+_bb.cls;}
+          else   {bpill.textContent='All Brands';bpill.className='brand-pill bp-all';}
+      }
+      drop.style.display='none';
+      renderAll();
+    });
+  });
+
+  // "Select all" resets to All Brands
+  var clr=document.getElementById('hdrBclr');
+  if(clr) clr.addEventListener('click',function(e){
+    e.stopPropagation();
+    var all=document.getElementById('br0');
+    if(all){all.checked=true;all.dispatchEvent(new Event('change'));}
+  });
+}());
+function renderAll(){
+  updateKpis();
+  var fr=filteredRows();
+  renderPivots(fr);
+  renderV1();renderV2();renderV3();
+}
+renderAll();
+// ── Missing CTY_FALLBACK check (runs on every load) ───────────────────────
+(function(){
+  var allRows = MASTER_ROWS;
+  var missing = {};
+  allRows.forEach(function(r){
+    var code = r[3];
+    if(!code) return;
+    if(!CTY_FALLBACK[code]) missing[code] = true;
+  });
+  var codes = Object.keys(missing).map(Number).sort(function(a,b){return a-b;});
+  if(codes.length === 0) return; // all good — silent
+
+  // Console warning
+  console.warn('[Dashboard] CTY_FALLBACK missing for IBMCTY code(s): ' + codes.join(', ') +
+    '. These will show -- for Country/Region/GEO. Please inform the dashboard maintainer.');
+
+  // Visible banner at top of page
+  var banner = document.createElement('div');
+  banner.style.cssText = 'position:fixed;top:0;left:0;right:0;z-index:9999;background:#7f1d1d;color:#fecaca;' +
+    'font-family:-apple-system,"Segoe UI",sans-serif;font-size:13px;padding:10px 16px;' +
+    'border-bottom:2px solid #ef4444;display:flex;align-items:center;gap:12px;';
+  banner.innerHTML =
+    '<span style="font-size:16px">&#9888;</span>' +
+    '<span><strong>Missing country mapping!</strong> The following IBMCTY code(s) have no Country/Region/GEO entry and will show as "--": ' +
+    '<strong>' + codes.join(', ') + '</strong>. Please inform the dashboard maintainer to add these.</span>' +
+    '<button onclick="this.parentNode.remove()" style="margin-left:auto;background:none;border:1px solid #fecaca;' +
+    'color:#fecaca;padding:2px 10px;border-radius:4px;cursor:pointer;font-size:12px">Dismiss</button>';
+  document.body.appendChild(banner);
+}());
+
+</script>
+</body>
+</html>
+
+
+
