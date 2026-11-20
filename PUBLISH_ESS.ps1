@@ -13,9 +13,9 @@ Set-Location $dir
 
 if (-not $Approved) { Write-Host "Not approved. Review dashboard-ess.html, then run:  .\PUBLISH_ESS.ps1 -Approved" -ForegroundColor Yellow; exit 2 }
 
-function Git {
+function Invoke-Git {
     $ErrorActionPreference = 'Continue'      # git writes progress to stderr; judge by exit code only
-    $out = & git @args 2>&1
+    $out = & git.exe @args 2>&1
     $out | ForEach-Object { Write-Host "  $_" }
     if ($LASTEXITCODE -ne 0) { throw "git $($args -join ' ') failed (exit $LASTEXITCODE)" }
 }
@@ -25,17 +25,17 @@ $rep = Get-Content "$dir\ess-check-report.json" -Raw | ConvertFrom-Json
 $tick = (Get-Item "$dir\dashboard-ess.html").LastWriteTimeUtc.Ticks
 if (-not $rep.pass -or [int64]$rep.dashboardTicks -ne $tick) { throw "check-ess.ps1 has not passed for the current dashboard-ess.html - run REFRESH_ESS.ps1 (or check-ess.ps1) first." }
 
-$branch = (& git branch --show-current).Trim()
+$branch = (& git.exe branch --show-current).Trim()
 Write-Host "Publishing from branch '$branch'..." -ForegroundColor Cyan
 Copy-Item "$dir\dashboard-ess.html" "$dir\dashboard-final.html" -Force
 Copy-Item "$dir\dashboard-ess.html" "$dir\index.html" -Force
-Git add dashboard-ess.html dashboard-final.html index.html ess-build-summary.json UPDATE_DASHBOARD_ESS.ps1 REFRESH_ESS.ps1 PUBLISH_ESS.ps1 check-ess.ps1 build-ess-template.ps1 dashboard-ess.template.html dump-ess.ps1
-$pending = (& git status --porcelain --untracked-files=no) | Where-Object { $_ }
-if ($pending) { Git commit -m ("ESS dashboard refresh " + (Get-Date -Format 'yyyy-MM-dd HH:mm')) } else { Write-Host "  (nothing new to commit)" }
-if ($branch -ne 'main') { Git checkout main; Git merge --no-edit $branch }
-Git push origin main
+Invoke-Git add dashboard-ess.html dashboard-final.html index.html ess-build-summary.json ess-query-summary.json UPDATE_DASHBOARD_ESS.ps1 UPDATE_DASHBOARD.ps1 REFRESH_ESS.ps1 PUBLISH_ESS.ps1 check-ess.ps1 build-ess-template.ps1 dashboard-ess.template.html dump-ess.ps1
+$pending = (& git.exe status --porcelain --untracked-files=no) | Where-Object { $_ }
+if ($pending) { Invoke-Git commit -m ("ESS dashboard refresh " + (Get-Date -Format 'yyyy-MM-dd HH:mm')) } else { Write-Host "  (nothing new to commit)" }
+if ($branch -ne 'main') { Invoke-Git checkout main; Invoke-Git merge --no-edit $branch }
+Invoke-Git push origin main
 
-$a = (& git rev-parse main).Trim(); $b = (& git rev-parse origin/main).Trim()
+$a = (& git.exe rev-parse main).Trim(); $b = (& git.exe rev-parse origin/main).Trim()
 if ($a -ne $b) { throw "main != origin/main after push" }
 Write-Host "`nPublished. main == origin/main ($($a.Substring(0,7)))" -ForegroundColor Green
 Write-Host "Live in 1-2 min: https://murugan-9.github.io/brand-installs-dashboard/  (Ctrl+Shift+R)" -ForegroundColor Cyan

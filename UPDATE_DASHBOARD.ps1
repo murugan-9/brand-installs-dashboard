@@ -1,3 +1,7 @@
+﻿# RETIRED: this is the old 4-brand refresh. The dashboard now has 18 programs and is refreshed by REFRESH_ESS.ps1 / PUBLISH_ESS.ps1.
+# Running this would overwrite the live 18-program dashboard with 4-brand logic, so it is disabled.
+Write-Host 'UPDATE_DASHBOARD.ps1 is retired. Use REFRESH_ESS.ps1, review, then PUBLISH_ESS.ps1 -Approved.' -ForegroundColor Red
+exit 1
 # =============================================================================
 #  UPDATE_DASHBOARD.ps1  â€”  ONE-CLICK WEEKLY REFRESH  (fast JSON-dump method)
 #  Drop new P11, FLASHSYSTEM, z Mid Range and P11 Balcones xlsx files into the
