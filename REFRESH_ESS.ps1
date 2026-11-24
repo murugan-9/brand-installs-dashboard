@@ -128,6 +128,16 @@ if ($SkipQuery) {
     Write-Host "  timings:" -ForegroundColor DarkGray
     foreach ($x in $r.Workers) { Write-Host ("    worker {0}: {1,5:N0} min  ({2})" -f $x.N, ($x.End - $x.Start).TotalMinutes, $(if ($x.Names.Count -gt 3) { "$($x.Names.Count) programs" } else { $x.Names -join ', ' })) -ForegroundColor DarkGray }
 
+    # If NOTHING succeeded the problem is the connection/login (VPN down, userid disabled, password expired), not one query.
+    # Retrying would only repeat failed logins (and can lock the account), so stop here instead.
+    if (@($names | Where-Object { $status[$_].Status -eq 'OK' }).Count -eq 0) {
+        Get-ChildItem "$bk\*.xlsx" | Copy-Item -Destination $ess -Force
+        Write-Host ('
+All {0} programs failed immediately - DB2 login/connection problem. NOT retrying. Previous files restored.' -f $names.Count) -ForegroundColor Red
+        Get-ChildItem "$workDir\run-w*.out.log" | Select-Object -First 1 | ForEach-Object { Get-Content $_ | Select-Object -Last 3 | ForEach-Object { Write-Host "  $_" } }
+        throw 'DB2 unavailable - fix the connection/userid, then run REFRESH_ESS.ps1 again. Nothing was rebuilt or published.'
+    }
+
     # A program that failed (e.g. DB2 connection dropped on a long query) is retried on its own, fresh connection.
     foreach ($attempt in 1..2) {
         $failed = @($names | Where-Object { $status[$_].Status -ne 'OK' })

@@ -6,7 +6,7 @@
         "db2Main":  394,
         "bottom":  22,
         "db2Bottom":  22,
-        "at":  "2026-11-20 20:25:09"
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "Spectrum Fusion",
@@ -15,43 +15,52 @@
         "db2Main":  1596,
         "bottom":  63,
         "db2Bottom":  63,
-        "at":  "2026-11-20 20:25:09"
+        "at":  "2026-11-24 21:48:15"
+    },
+    {
+        "program":  "z Mid Range (2026)",
+        "status":  "OK",
+        "main":  3716,
+        "db2Main":  3716,
+        "bottom":  100,
+        "db2Bottom":  100,
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "z17 - 9175",
         "status":  "OK",
-        "main":  61998,
-        "db2Main":  61998,
-        "bottom":  1067,
-        "db2Bottom":  1067,
-        "at":  "2026-11-20 20:25:09"
+        "main":  62633,
+        "db2Main":  62633,
+        "bottom":  1064,
+        "db2Bottom":  1064,
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "TS4300 Tape Library",
         "status":  "OK",
-        "main":  16019,
-        "db2Main":  16019,
-        "bottom":  1534,
-        "db2Bottom":  1534,
-        "at":  "2026-11-20 20:25:09"
+        "main":  17188,
+        "db2Main":  17188,
+        "bottom":  1573,
+        "db2Bottom":  1573,
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "FlashSystem",
         "status":  "OK",
-        "main":  48594,
-        "db2Main":  48594,
-        "bottom":  3228,
-        "db2Bottom":  3228,
-        "at":  "2026-11-20 20:25:09"
+        "main":  50557,
+        "db2Main":  50557,
+        "bottom":  3309,
+        "db2Bottom":  3309,
+        "at":  "2026-11-24 21:48:15"
     },
     {
-        "program":  "Switches NVIDIA",
+        "program":  "P11 Balcones (2026)",
         "status":  "OK",
-        "main":  70,
-        "db2Main":  70,
-        "bottom":  30,
-        "db2Bottom":  30,
-        "at":  "2026-11-20 20:25:09"
+        "main":  11426,
+        "db2Main":  11426,
+        "bottom":  204,
+        "db2Bottom":  204,
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "Hydra TS7785",
@@ -60,16 +69,16 @@
         "db2Main":  198,
         "bottom":  33,
         "db2Bottom":  33,
-        "at":  "2026-11-20 20:25:09"
+        "at":  "2026-11-24 21:48:15"
     },
     {
-        "program":  "P11 Balcones (2026)",
+        "program":  "Networking SAN56B-8",
         "status":  "OK",
-        "main":  10294,
-        "db2Main":  10294,
-        "bottom":  200,
-        "db2Bottom":  200,
-        "at":  "2026-11-20 20:25:09"
+        "main":  1934,
+        "db2Main":  1934,
+        "bottom":  212,
+        "db2Bottom":  212,
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "Fusion HCI + watsonx",
@@ -78,78 +87,69 @@
         "db2Main":  0,
         "bottom":  0,
         "db2Bottom":  0,
-        "at":  "2026-11-20 20:25:09"
+        "at":  "2026-11-24 21:48:15"
     },
     {
-        "program":  "Networking SAN56B-8",
+        "program":  "FlashSystem C200",
         "status":  "OK",
-        "main":  1910,
-        "db2Main":  1910,
-        "bottom":  212,
-        "db2Bottom":  212,
-        "at":  "2026-11-20 20:25:09"
+        "main":  80,
+        "db2Main":  80,
+        "bottom":  8,
+        "db2Bottom":  8,
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "Fusion",
         "status":  "OK",
         "main":  15347,
         "db2Main":  15347,
-        "bottom":  498,
-        "db2Bottom":  498,
-        "at":  "2026-11-20 20:25:09"
-    },
-    {
-        "program":  "FlashSystem C200",
-        "status":  "OK",
-        "main":  72,
-        "db2Main":  72,
-        "bottom":  8,
-        "db2Bottom":  8,
-        "at":  "2026-11-20 20:25:09"
+        "bottom":  491,
+        "db2Bottom":  491,
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "Broadcom B50 (GEN8)",
         "status":  "OK",
-        "main":  1294,
-        "db2Main":  1294,
-        "bottom":  112,
-        "db2Bottom":  112,
-        "at":  "2026-11-20 20:25:09"
+        "main":  1354,
+        "db2Main":  1354,
+        "bottom":  117,
+        "db2Bottom":  117,
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "DataPower \u0026 QR",
         "status":  "OK",
         "main":  0,
         "db2Main":  0,
-        "bottom":  10,
-        "db2Bottom":  10,
-        "at":  "2026-11-20 20:25:09"
+        "bottom":  16,
+        "db2Bottom":  16,
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "CEPH Ready Node",
         "status":  "OK",
-        "main":  0,
-        "db2Main":  0,
+        "main":  102,
+        "db2Main":  102,
         "bottom":  12,
         "db2Bottom":  12,
-        "at":  "2026-11-20 20:25:09"
+        "at":  "2026-11-24 21:48:15"
     },
     {
         "program":  "DS8K",
         "status":  "OK",
-        "main":  11630,
-        "db2Main":  11630,
+        "main":  11884,
+        "db2Main":  11884,
         "bottom":  131,
         "db2Bottom":  131,
-        "at":  "2026-11-20 20:25:09"
+        "at":  "2026-11-24 21:48:15"
     },
     {
-        "program":  "z Mid Range (2026)",
+        "program":  "Switches NVIDIA",
         "status":  "OK",
-        "main":  2870,
-        "db2Main":  2870,
-        "bottom":  95,
-        "db2Bottom":  95,
-        "at":  "2026-11-20 20:25:09"
+        "main":  70,
+        "db2Main":  70,
+        "bottom":  30,
+        "db2Bottom":  30,
+        "at":  "2026-11-24 21:48:15"
     }
 ]
