@@ -8,8 +8,8 @@ Each tab is refreshed on its own, shown for review, and published only after app
 
 | Tab | You do | Bob does (refresh, then stops for your review) | After you approve |
 |---|---|---|---|
-| ESS Installs | ask for a refresh (needs VPN/office network and an up-to-date P11 in `...\.bob\ESS`) | `.\REFRESH_HUB.ps1 -Tab ess` | `.\PUBLISH_HUB.ps1 -Tab ess -Approved` |
-| Daily NPI EO Orders | update the Masterfile daily (`...\playground\NPI Tracker\Masterfile_<date>.xlsx`, closed in Excel), then ask for a refresh | `.\REFRESH_HUB.ps1 -Tab npi [-Master "<file>"]` | `.\PUBLISH_HUB.ps1 -Tab npi -Approved` |
+| NPI INSTALLS (ESS) | ask for a refresh (needs VPN/office network and an up-to-date P11 in `...\.bob\ESS`) | `.\REFRESH_HUB.ps1 -Tab ess` | `.\PUBLISH_HUB.ps1 -Tab ess -Approved` |
+| DAILY NPI EO TRACKER | update the Masterfile daily (`...\playground\NPI Tracker\Masterfile_<date>.xlsx`, closed in Excel), then ask for a refresh | `.\REFRESH_HUB.ps1 -Tab npi [-Master "<file>"]` | `.\PUBLISH_HUB.ps1 -Tab npi -Approved` |
 
 - A refresh rebuilds `hub\`, runs `check-hub.ps1`, and stops. **Nothing is pushed.** Review `hub\index.html`.
 - `PUBLISH_HUB.ps1 -Tab <tab> -Approved` publishes only that tab's dashboard; the other tab on the live site is not touched.
@@ -43,4 +43,5 @@ git checkout main        # before publishing: nothing changed
 git revert <hub commit>  # after publishing
 ```
 Tag `pre-npi-hub` and the folder `backup-pre-npi-hub\` hold the ESS-only version.
+
 

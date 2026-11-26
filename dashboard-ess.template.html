@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1"/>
-<title>Serial Status Dashboard &#x2013; {{TITLE_SUFFIX}}</title>
+<title>Installs Data - NPI Programs ({{PROG_COUNT}})</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:#080c16;color:#e2e8f0;min-height:100vh}
@@ -13,6 +13,7 @@ body{font-family:-apple-system,"Segoe UI",system-ui,sans-serif;background:#080c1
 .hdr-text{flex:1}
 .hdr h1{font-size:18px;font-weight:800;color:#f1f5f9}
 .hdr p{font-size:11px;color:#4b5563;margin-top:2px}
+.hdr-refresh{font-size:12px;font-weight:600;color:#fcd34d;margin-top:2px}
 .tabs{display:flex;gap:0;padding:0 24px;border-bottom:1px solid #1a2234;background:#0c1020}
 .tab{padding:12px 20px;font-size:12px;font-weight:700;color:#4b5563;border-bottom:3px solid transparent;cursor:pointer;transition:all .2s;user-select:none;text-transform:uppercase;letter-spacing:.5px}
 .tab:hover{color:#a5b4fc;background:rgba(99,102,241,.05)}
@@ -133,7 +134,8 @@ footer{text-align:center;padding:16px;border-top:1px solid #0d1117;color:#1f2937
 <div class="hdr">
   <div class="hdr-logo" style="font-size:13px">&#9644;</div>
   <div class="hdr-text">
-    <h1>Serial Status Dashboard &mdash; {{TITLE_SUFFIX}}</h1>
+    <h1>Installs Data - NPI Programs ({{PROG_COUNT}})</h1>
+    <div class="hdr-refresh" id="hdrRefresh">Last refreshed: {{LAST_REFRESH}}</div>
     <p><span id="hdrRecs">--</span> &nbsp;&middot;&nbsp; <span style="color:#6ee7b7">Click any number to drill down &nbsp;|&nbsp; Use Brands filter (top-right) to switch brand</span></p>
   </div>
   <div class="hdr-brand">

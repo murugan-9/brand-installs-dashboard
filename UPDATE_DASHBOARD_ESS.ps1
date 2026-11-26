@@ -239,7 +239,20 @@ foreach ($p in $progs) {
 # -- Step 4: fill template, write local output -------------------------------
 Write-Host "Step 4/4  Writing dashboard-ess.html (local only)..." -ForegroundColor White
 $html = [System.IO.File]::ReadAllText($template, [System.Text.Encoding]::UTF8)
-$html = $html.Replace('{{TITLE_SUFFIX}}', "$($progs.Count) Programs")
+# Last refresh date shown under the title: when the DB2 data was last pulled (ess-query-summary.json), else newest ESS xlsx
+$lastRefresh = $null
+$qsum = "$dashDir\ess-query-summary.json"
+if (Test-Path $qsum) {
+    $ats = @(Get-Content $qsum -Raw | ConvertFrom-Json | ForEach-Object { $_ } | ForEach-Object { $_.at } | Where-Object { $_ })
+    if ($ats.Count) { $lastRefresh = ($ats | ForEach-Object { [datetime]$_ } | Measure-Object -Maximum).Maximum }
+}
+if (-not $lastRefresh) { $lastRefresh = (Get-ChildItem 'C:\Users\MuruganVenugopal\.bob\ESS\*.xlsx' | Sort-Object LastWriteTime -Descending | Select-Object -First 1).LastWriteTime }
+$dn = $lastRefresh.Day
+$sfx = if ($dn -in 11,12,13) { 'th' } else { switch ($dn % 10) { 1 {'st'} 2 {'nd'} 3 {'rd'} default {'th'} } }
+$lastRefreshTxt = "$dn$sfx " + $lastRefresh.ToString('MMM', [System.Globalization.CultureInfo]::InvariantCulture)
+Write-Host "  Last refresh date shown: $lastRefreshTxt" -ForegroundColor White
+$html = $html.Replace('{{PROG_COUNT}}', "$($progs.Count)")
+$html = $html.Replace('{{LAST_REFRESH}}', $lastRefreshTxt)
 $html = $html.Replace('/*{{BRAND_CSS}}*/', ($css -join "`n"))
 $html = $html.Replace('{{BRAND_OPTIONS}}', ($opts -join "`n        "))
 if (-not $html.Contains('var BRANDS=[];') -or -not $html.Contains('var BRAND_ROWS={};')) { throw "BRANDS/BRAND_ROWS placeholders not found in template" }
