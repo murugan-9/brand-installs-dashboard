@@ -63,7 +63,17 @@ $html = $tpl.Replace('/*{{HUB_TABS}}*/[]', $js)
 $manifest | ConvertTo-Json -Depth 3 | Set-Content (Join-Path $tmp 'hub-manifest.json') -Encoding UTF8
 
 # swap into place
-if (Test-Path $OutDir) { Remove-Item $OutDir -Recurse -Force }
-Rename-Item $tmp (Split-Path $OutDir -Leaf)
+$swapped = $false
+if (Test-Path $OutDir) {
+    try { Remove-Item $OutDir -Recurse -Force -ErrorAction Stop }
+    catch {
+        # the folder itself can be locked (open in Explorer / a terminal / an editor); replace its contents instead
+        Get-ChildItem $OutDir -Force | Remove-Item -Recurse -Force
+        Get-ChildItem $tmp -Force | Move-Item -Destination $OutDir -Force
+        Remove-Item $tmp -Recurse -Force
+        $swapped = $true
+    }
+}
+if (-not $swapped) { Rename-Item $tmp (Split-Path $OutDir -Leaf) }
 Write-Host ("`nNPI HUB built: {0}\index.html  ({1} tabs)" -f $OutDir, $tabs.Count) -ForegroundColor Cyan
 Write-Host 'Preview only. Nothing was committed or pushed; the live dashboard is untouched.' -ForegroundColor Cyan

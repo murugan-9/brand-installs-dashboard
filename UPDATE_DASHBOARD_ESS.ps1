@@ -189,6 +189,8 @@ $legacy = @{
     'P11 Balcones (2026)' = @{ key='BALCONES'; cls='bp-balcones' }
 }
 
+# Label shown on the dashboard when it differs from the source file/folder name (the DB2 query, staging and checks keep the source name)
+$displayNames = @{ 'FlashSystem C200' = 'FlashSystem C300' }
 Write-Host "Step 2/4  Discovering programs in staging..." -ForegroundColor White
 $dirs = Get-ChildItem $stage -Directory | Sort-Object Name
 $progs = @()
@@ -203,7 +205,8 @@ foreach ($d in $dirs) {
         $css = ".brand-pill.$cls{background:hsla($h,70%,55%,.15);border-color:hsl($h,70%,38%);color:hsl($h,90%,78%)}"
     }
     $i++
-    $progs += [pscustomobject]@{ name=$name; key=$key; cls=$cls; css=$css; dir=$d.FullName; file=($name -replace '[^A-Za-z0-9]+','_').Trim('_') }
+    $disp = if ($displayNames.ContainsKey($name)) { $displayNames[$name] } else { $name }
+    $progs += [pscustomobject]@{ name=$name; disp=$disp; key=$key; cls=$cls; css=$css; dir=$d.FullName; file=($disp -replace '[^A-Za-z0-9]+','_').Trim('_') }
 }
 # P11 first (user's headline program) then alphabetical
 $progs = @($progs | Sort-Object @{e={ if ($_.key -eq 'P11') {0} else {1} }}, name)
@@ -226,8 +229,8 @@ foreach ($p in $progs) {
     $d = Build-Rows $ess $svl
     if ($sbRows.Length -gt 0) { [void]$sbRows.Append(',') }
     [void]$sbRows.Append('"' + $p.key + '":' + $d.ROWS)
-    $brandsJs.Add('{"key":"' + $p.key + '","label":"' + (esc $p.name) + '","cls":"' + $p.cls + '","file":"' + (esc $p.file) + '"}')
-    $lblHtml = [System.Net.WebUtility]::HtmlEncode($p.name)
+    $brandsJs.Add('{"key":"' + $p.key + '","label":"' + (esc $p.disp) + '","cls":"' + $p.cls + '","file":"' + (esc $p.file) + '"}')
+    $lblHtml = [System.Net.WebUtility]::HtmlEncode($p.disp)
     $opts.Add('<div class="cmt-opt"><input type="radio" name="brand" id="brx' + $n + '" class="brk" value="' + $p.key + '"><label for="brx' + $n + '">' + $lblHtml + '</label></div>')
     if ($p.css) { $css.Add($p.css) }
     $sum.Add([pscustomobject]@{ program=$p.name; key=$p.key; essRows=$ess.rows.Count; svlRows=$svl.rows.Count; outRows=$d.COUNT; comments=$d.COMMENTS })
