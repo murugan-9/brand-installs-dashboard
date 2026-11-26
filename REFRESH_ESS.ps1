@@ -193,7 +193,8 @@ Write-Host ("`nElapsed: {0:N0} min" -f ((Get-Date) - $t0).TotalMinutes)
 if ($checksOk) {
     Write-Host "`nCHECKS PASSED. Preview: $dir\dashboard-ess.html" -ForegroundColor Green
     Write-Host "NOTHING HAS BEEN PUSHED. After you review and approve, publish with:" -ForegroundColor Cyan
-    Write-Host "  .\PUBLISH_ESS.ps1 -Approved" -ForegroundColor Yellow
+    if (Test-Path "$dir\hub-tabs.json") { Write-Host "  .\REFRESH_HUB.ps1 -Tab ess -RebuildOnly   (put it in the hub), then  .\PUBLISH_HUB.ps1 -Approved" -ForegroundColor Yellow }
+    else { Write-Host "  .\PUBLISH_ESS.ps1 -Approved" -ForegroundColor Yellow }
 } else {
     Write-Host "`nCHECKS FAILED - see FAIL lines above. Do not publish." -ForegroundColor Red
     exit 1

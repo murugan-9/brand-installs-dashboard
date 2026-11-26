@@ -11,6 +11,12 @@ $ErrorActionPreference = 'Stop'
 $dir = "C:\Users\MuruganVenugopal\.bob\playground\.bob\tmp\xlsx-dumps\Brands_Installs Data"
 Set-Location $dir
 
+# Since the NPI HUB, index.html is the hub shell. Publishing ESS alone would overwrite it, so this script is retired.
+if (Test-Path "$dir\hub-tabs.json") {
+    Write-Host "PUBLISH_ESS.ps1 is retired: index.html is now the NPI HUB. Use  .\REFRESH_HUB.ps1 -Tab ess  then  .\PUBLISH_HUB.ps1 -Approved" -ForegroundColor Yellow
+    exit 2
+}
+
 if (-not $Approved) { Write-Host "Not approved. Review dashboard-ess.html, then run:  .\PUBLISH_ESS.ps1 -Approved" -ForegroundColor Yellow; exit 2 }
 
 function Invoke-Git {
