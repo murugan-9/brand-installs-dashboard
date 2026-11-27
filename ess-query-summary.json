@@ -6,7 +6,7 @@
         "db2Main":  394,
         "bottom":  22,
         "db2Bottom":  22,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "Spectrum Fusion",
@@ -15,25 +15,16 @@
         "db2Main":  1596,
         "bottom":  63,
         "db2Bottom":  63,
-        "at":  "2026-11-24 21:48:15"
-    },
-    {
-        "program":  "z Mid Range (2026)",
-        "status":  "OK",
-        "main":  3716,
-        "db2Main":  3716,
-        "bottom":  100,
-        "db2Bottom":  100,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "z17 - 9175",
         "status":  "OK",
-        "main":  62633,
-        "db2Main":  62633,
+        "main":  62693,
+        "db2Main":  62693,
         "bottom":  1064,
         "db2Bottom":  1064,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "TS4300 Tape Library",
@@ -42,7 +33,7 @@
         "db2Main":  17188,
         "bottom":  1573,
         "db2Bottom":  1573,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "FlashSystem",
@@ -51,7 +42,7 @@
         "db2Main":  50557,
         "bottom":  3309,
         "db2Bottom":  3309,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "P11 Balcones (2026)",
@@ -60,7 +51,7 @@
         "db2Main":  11426,
         "bottom":  204,
         "db2Bottom":  204,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "Hydra TS7785",
@@ -69,7 +60,7 @@
         "db2Main":  198,
         "bottom":  33,
         "db2Bottom":  33,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "Networking SAN56B-8",
@@ -78,7 +69,7 @@
         "db2Main":  1934,
         "bottom":  212,
         "db2Bottom":  212,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "Fusion HCI + watsonx",
@@ -87,7 +78,7 @@
         "db2Main":  0,
         "bottom":  0,
         "db2Bottom":  0,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "FlashSystem C200",
@@ -96,7 +87,7 @@
         "db2Main":  80,
         "bottom":  8,
         "db2Bottom":  8,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "Fusion",
@@ -105,43 +96,7 @@
         "db2Main":  15347,
         "bottom":  491,
         "db2Bottom":  491,
-        "at":  "2026-11-24 21:48:15"
-    },
-    {
-        "program":  "Broadcom B50 (GEN8)",
-        "status":  "OK",
-        "main":  1354,
-        "db2Main":  1354,
-        "bottom":  117,
-        "db2Bottom":  117,
-        "at":  "2026-11-24 21:48:15"
-    },
-    {
-        "program":  "DataPower \u0026 QR",
-        "status":  "OK",
-        "main":  0,
-        "db2Main":  0,
-        "bottom":  16,
-        "db2Bottom":  16,
-        "at":  "2026-11-24 21:48:15"
-    },
-    {
-        "program":  "CEPH Ready Node",
-        "status":  "OK",
-        "main":  102,
-        "db2Main":  102,
-        "bottom":  12,
-        "db2Bottom":  12,
-        "at":  "2026-11-24 21:48:15"
-    },
-    {
-        "program":  "DS8K",
-        "status":  "OK",
-        "main":  11884,
-        "db2Main":  11884,
-        "bottom":  131,
-        "db2Bottom":  131,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
     },
     {
         "program":  "Switches NVIDIA",
@@ -150,6 +105,51 @@
         "db2Main":  70,
         "bottom":  30,
         "db2Bottom":  30,
-        "at":  "2026-11-24 21:48:15"
+        "at":  "2026-11-27 13:52:05"
+    },
+    {
+        "program":  "Broadcom B50 (GEN8)",
+        "status":  "OK",
+        "main":  1354,
+        "db2Main":  1354,
+        "bottom":  117,
+        "db2Bottom":  117,
+        "at":  "2026-11-27 13:52:05"
+    },
+    {
+        "program":  "DataPower \u0026 QR",
+        "status":  "OK",
+        "main":  0,
+        "db2Main":  0,
+        "bottom":  16,
+        "db2Bottom":  16,
+        "at":  "2026-11-27 13:52:05"
+    },
+    {
+        "program":  "CEPH Ready Node",
+        "status":  "OK",
+        "main":  102,
+        "db2Main":  102,
+        "bottom":  12,
+        "db2Bottom":  12,
+        "at":  "2026-11-27 13:52:05"
+    },
+    {
+        "program":  "DS8K",
+        "status":  "OK",
+        "main":  11884,
+        "db2Main":  11884,
+        "bottom":  131,
+        "db2Bottom":  131,
+        "at":  "2026-11-27 13:52:05"
+    },
+    {
+        "program":  "z Mid Range (2026)",
+        "status":  "OK",
+        "main":  3716,
+        "db2Main":  3716,
+        "bottom":  100,
+        "db2Bottom":  100,
+        "at":  "2026-11-27 13:52:05"
     }
 ]
