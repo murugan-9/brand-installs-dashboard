@@ -33,7 +33,7 @@ var HUB_TABS=/*{{HUB_TABS}}*/[];
 var nav=document.getElementById('hubTabs'),body=document.getElementById('hubBody');
 var frames={},btns={};
 function show(id){
- if(!frames[id]) id=HUB_TABS.length?HUB_TABS[0].id:'';
+ if(!frames[id]){ var d=HUB_TABS.filter(function(x){return x.default})[0]||HUB_TABS[0]; id=d?d.id:''; }
  Object.keys(frames).forEach(function(k){
   var on=(k===id);
   frames[k].classList.toggle('active',on);

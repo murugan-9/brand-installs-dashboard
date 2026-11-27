@@ -55,7 +55,7 @@ foreach ($t in $tabs) {
 }
 
 # hub shell
-$js = '[' + ((@($tabs | ForEach-Object { '{"id":"' + $_.id + '","label":"' + ($_.label -replace '\\','\\' -replace '"','\"') + '","src":"' + $_.file + '"}' })) -join ',') + ']'
+$js = '[' + ((@($tabs | ForEach-Object { '{"id":"' + $_.id + '","label":"' + ($_.label -replace '\\','\\' -replace '"','\"') + '","src":"' + $_.file + '"' + $(if ($_.default) { ',"default":true' } else { '' }) + '}' })) -join ',') + ']'
 $tpl = [IO.File]::ReadAllText($tplFile, [Text.Encoding]::UTF8)
 if (-not $tpl.Contains('/*{{HUB_TABS}}*/[]')) { throw 'Placeholder /*{{HUB_TABS}}*/[] not found in hub.template.html' }
 $html = $tpl.Replace('/*{{HUB_TABS}}*/[]', $js)

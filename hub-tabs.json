@@ -1,4 +1,4 @@
-﻿[
+[
   {
     "id": "ess-installs",
     "label": "NPI INSTALLS (ESS)",
@@ -9,7 +9,8 @@
     "id": "daily-npi-eo-orders",
     "label": "DAILY NPI EO TRACKER",
     "source": "C:\\Users\\MuruganVenugopal\\.bob\\playground\\NPI Tracker\\NPI_Tracker_Dashboard.html",
-    "file": "daily-npi-eo-orders.html"
+    "file": "daily-npi-eo-orders.html",
+    "default": true
   }
 ]
 
